@@ -1,20 +1,24 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.scss'
+import Main from "./routes/main";
+import EditPage from "./routes/edit";
+import Settings from "./routes/settings";
+
 import { useEffect } from 'react';
 import { render } from "react-dom";
-import Main from "./routes/main";
-import Settings from "./routes/settings";
 import Container from 'react-bootstrap/Container'
-import { Routes, Route, Outlet, useNavigate } from "react-router-dom";
+import { Routes, Route, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { unstable_HistoryRouter as HistoryRouter } from "react-router-dom";
 import { createBrowserHistory } from "history"
 
 
 function App() {
   let navigate = useNavigate();
+  let location = useLocation();
   useEffect(() => {
     window.electronAPI.handleOpenTab((_, value) => {
-      navigate('/' + value)
+      console.log(location)
+      navigate(value, {state: {returnTo: location.pathname}})
     })
   })
 
@@ -33,12 +37,13 @@ render(
       <Routes>
         <Route path="/" element={<App />}>
           <Route index element={<Main />} />
+          <Route path="edit" element={<EditPage />} />
           <Route path="settings" element={<Settings />} />
           <Route
             path="*"
             element={
               <main style={{ padding: "1rem" }}>
-                <p>Page not found!</p>
+                <p>Error: invalid route</p>
               </main>
             }
           />

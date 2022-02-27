@@ -123,6 +123,22 @@ const template = [
     submenu: [
       { role: 'minimize' },
       { role: 'zoom' },
+      { type: 'separator' },
+      {
+        click: () => mainWindow.webContents.send('open-tab', '/'),
+        label: 'Main'
+      },
+      {
+        click: () => mainWindow.webContents.send('open-tab', '/edit'),
+        label: 'Edit'
+      },
+      ...(!isMac ? [
+        { type: 'separator' },
+        {
+          click: () => mainWindow.webContents.send('open-tab', '/settings'),
+          label: 'Settings'
+        },
+      ] : [ ]),
       ...(isMac ? [
         { type: 'separator' },
         { role: 'front' },
