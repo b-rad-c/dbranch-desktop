@@ -49,7 +49,7 @@ const template = [
       { role: 'about' },
       { type: 'separator' },
       {
-        click: () => mainWindow.webContents.send('navigate', 'settings'),
+        click: () => mainWindow.webContents.send('toggle-settings'),
         label: 'Preferences...',
         accelerator: 'Command+,'
       },
@@ -120,6 +120,22 @@ const template = [
     submenu: [
       { role: 'minimize' },
       { role: 'zoom' },
+      { type: 'separator' },
+      {
+        click: () => mainWindow.webContents.send('show-main-page'),
+        label: 'Main'
+      },
+      {
+        click: () => mainWindow.webContents.send('show-other-page'),
+        label: 'Other'
+      },
+      ...(!isMac ? [
+        { type: 'separator' },
+        {
+          click: () => mainWindow.webContents.send('toggle-settings'),
+          label: 'Settings'
+        },
+      ] : [ ]),
       ...(isMac ? [
         { type: 'separator' },
         { role: 'front' },

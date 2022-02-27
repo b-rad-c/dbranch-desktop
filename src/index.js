@@ -1,51 +1,36 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.scss'
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { render } from "react-dom";
-import Main from "./routes/main";
+import MainPage from "./routes/main";
+import OtherPage from "./routes/other";
 import Settings from "./routes/settings";
 import Container from 'react-bootstrap/Container'
-import { Routes, Route, Outlet, useNavigate } from "react-router-dom";
-import { unstable_HistoryRouter as HistoryRouter } from "react-router-dom";
-import { createBrowserHistory } from "history"
 
 
 function App() {
-  let navigate = useNavigate();
-  useEffect(() => {
-    window.dBranch.handleNavigate((_, value) => {
-      console.log('navigating to: ' + value)
-      navigate('/' + value)
-    })
-  })
+  const [currentPage, setCurrentPage] = useState('main')
+  const [showSettings, setShowSettings] = useState(false)
+  const toggleSettings = () => setShowSettings(!showSettings)
+
+  window.dBranch.showMainPage(() => setCurrentPage('main'))
+  window.dBranch.showOtherPage(() => setCurrentPage('other'))
+  window.dBranch.toggleSettings(() => toggleSettings())
+
+  const show = (name) => { return !showSettings && name === currentPage }
 
   return (
     <Container fluid="md">
-      <Outlet />
+      {showSettings && <Settings toggleSettings={toggleSettings} />}
+      {show('main') && <MainPage />}
+      {show('other') && <OtherPage />}
     </Container>
   );
 }
 
-const history = createBrowserHistory({ window });
-
 render(  
   <div className="app position-absolute top-0 start-0 bg-light bg-gradient">
-    <HistoryRouter history={history}>
-      <Routes>
-        <Route path="/" element={<App />}>
-          <Route index element={<Main />} />
-          <Route path="settings" element={<Settings />} />
-          <Route
-            path="*"
-            element={
-              <main style={{ padding: "1rem" }}>
-                <p>Page not found!</p>
-              </main>
-            }
-          />
-        </Route>
-      </Routes>
-    </HistoryRouter>
+    <App />
   </div>,
   document.getElementById("root")
 );
