@@ -1,21 +1,39 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.scss'
+import { useEffect } from 'react';
 import { render } from "react-dom";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import App from "./App";
-import Home from "./routes/Home";
-import Branches from "./routes/Branches";
-import Info from "./routes/Info";
+import Main from "./routes/main";
+import Settings from "./routes/settings";
+import Container from 'react-bootstrap/Container'
+import { Routes, Route, Outlet, useNavigate } from "react-router-dom";
+import { unstable_HistoryRouter as HistoryRouter } from "react-router-dom";
+import { createBrowserHistory } from "history"
 
-const rootElement = document.getElementById("root");
-render(
+
+function App() {
+  let navigate = useNavigate();
+  useEffect(() => {
+    window.electronAPI.handleOpenTab((_, value) => {
+      navigate('/' + value)
+    })
+  })
+
+  return (
+    <Container fluid="md">
+      <Outlet />
+    </Container>
+  );
+}
+
+const history = createBrowserHistory({ window });
+
+render(  
   <div className="app position-absolute top-0 start-0 bg-light bg-gradient">
-    <BrowserRouter>
+    <HistoryRouter history={history}>
       <Routes>
         <Route path="/" element={<App />}>
-          <Route index element={<Home />} />
-          <Route path="branches" element={<Branches />} />
-          <Route path="info" element={<Info />} />
+          <Route index element={<Main />} />
+          <Route path="settings" element={<Settings />} />
           <Route
             path="*"
             element={
@@ -26,8 +44,7 @@ render(
           />
         </Route>
       </Routes>
-
-    </BrowserRouter>
+    </HistoryRouter>
   </div>,
-  rootElement
+  document.getElementById("root")
 );
