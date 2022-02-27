@@ -1,0 +1,145 @@
+// bootstrap overrides
+$primary: rgb(94, 94, 94);
+$secondary: rgba(125, 125, 125, .1);
+$light: rgba(224, 224, 224, 1);
+$dark: rgba(20, 20, 20, 1);
+
+@import "~bootstrap/scss/bootstrap";
+
+/*
+globals
+*/
+
+body {
+    margin: 0;
+    padding: 1%;
+    font-family: 'Courier New', Courier, monospace;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: $white;
+}
+
+main {
+    padding: 1rem 0;
+}
+
+h1{
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: $dark;
+}
+
+h2{
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: $dark;
+    
+    margin-bottom: 0;
+    
+}
+
+h3{
+    font-size: 1.25rem;
+    font-weight: bold;
+    text-decoration: underline;
+    color: $white;
+}
+
+p{
+    font-size: 1.25rem;
+    color: $white;
+}
+
+.app{
+    width: 100vw;
+    height: 100vh;
+    overflow-y: scroll;
+}
+
+.bubble {
+    background-color: $white;
+    border-style: solid;
+    border-color: $dark;
+    border-radius: 25px;
+}
+
+.sm {
+    margin: 0 auto;
+    width: 65%;
+}
+
+.content {
+    background-color: $dark;
+    color: $white;
+    text-align: left;
+    padding: 1rem;
+}
+
+/*
+  page header
+*/
+
+.title {
+    font-size: 6rem;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+@include media-breakpoint-down(md) {
+    .title {
+        font-size: 3rem;
+    }
+}
+
+.subtitle {
+    margin-top: -1rem;
+    padding-top: 0;
+    font-size: 1.65rem;
+}
+  
+@include media-breakpoint-down(md) {
+    .subtitle {
+        margin-top: .25rem;
+        font-size: 1.25rem;
+    }
+}
+
+.navLink {
+    font-weight: bold;
+    text-decoration: none;
+    color: $dark;
+    font-size: 1.25rem;
+}
+
+.navLink:hover {
+    text-decoration: underline;
+    color: $dark;
+}
+
+.active {
+    text-decoration: underline;
+}
+
+/* 
+info page
+*/
+
+.info-content {
+    width: 60%;
+    margin: 1rem auto;
+}
+
+@include media-breakpoint-down(md) {
+    .info-content {
+        width: 81%;
+        margin: 1rem auto;
+    }
+}
+
+@include media-breakpoint-down(sm) {
+    .info-content {
+        width: 100%;
+        margin: 1rem auto;
+    }
+}
