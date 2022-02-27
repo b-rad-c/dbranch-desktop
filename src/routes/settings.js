@@ -1,7 +1,8 @@
 import { Button } from 'react-bootstrap'
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Settings() {
+console.log(useLocation())
 let navigate = useNavigate()
 const goBack = () => { console.log('closing settings'); navigate(-1) }
 return (

@@ -13,7 +13,8 @@ import { createBrowserHistory } from "history"
 function App() {
   let navigate = useNavigate();
   useEffect(() => {
-    window.electronAPI.handleOpenTab((_, value) => {
+    window.dBranch.handleNavigate((_, value) => {
+      console.log('navigating to: ' + value)
       navigate('/' + value)
     })
   })

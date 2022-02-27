@@ -27,9 +27,6 @@ function createWindow() {
 //
 
 app.whenReady().then(() => {
-  ipcMain.on('tab-opened', (_event, value) => {
-    console.log('tab-opened: ' + value)
-  })
   createWindow()
   app.on('activate', () => {
       // osx behaviour, when activating app, open a window if none are open
@@ -52,7 +49,7 @@ const template = [
       { role: 'about' },
       { type: 'separator' },
       {
-        click: () => mainWindow.webContents.send('open-tab', 'settings'),
+        click: () => mainWindow.webContents.send('navigate', 'settings'),
         label: 'Preferences...',
         accelerator: 'Command+,'
       },
