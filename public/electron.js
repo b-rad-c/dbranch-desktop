@@ -20,6 +20,7 @@ function createWindow() {
     }
   });
   mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`);
+  if (isDev) mainWindow.webContents.openDevTools();
 }
 
 //
@@ -49,7 +50,7 @@ const template = [
       { role: 'about' },
       { type: 'separator' },
       {
-        click: () => mainWindow.webContents.send('toggle-settings'),
+        click: () => mainWindow.webContents.send('navigate-to', 'settings'),
         label: 'Preferences...',
         accelerator: 'Command+,'
       },
@@ -122,17 +123,17 @@ const template = [
       { role: 'zoom' },
       { type: 'separator' },
       {
-        click: () => mainWindow.webContents.send('show-main-page'),
+        click: () => mainWindow.webContents.send('navigate-to', '/'),
         label: 'Main'
       },
       {
-        click: () => mainWindow.webContents.send('show-other-page'),
-        label: 'Other'
+        click: () => mainWindow.webContents.send('navigate-to', '/edit'),
+        label: 'Edit'
       },
       ...(!isMac ? [
         { type: 'separator' },
         {
-          click: () => mainWindow.webContents.send('toggle-settings'),
+          click: () => mainWindow.webContents.send('navigate-to', '/settings'),
           label: 'Settings'
         },
       ] : [ ]),

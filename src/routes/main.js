@@ -8,7 +8,8 @@ return (
 <main>
     <div className='content'>
         <h3>Main</h3>
-        <p>num: {num}</p>
+        <p>num: {num} {num === 3 && <span>Hi :)</span>}</p>
+        
         <Button onClick={incNum}>increment</Button>
     </div>
 </main>

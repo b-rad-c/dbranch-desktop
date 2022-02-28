@@ -34,9 +34,7 @@ h2{
     font-size: 1.5rem;
     font-weight: bold;
     color: $dark;
-    
     margin-bottom: 0;
-    
 }
 
 h3{
@@ -49,12 +47,6 @@ h3{
 p{
     font-size: 1.25rem;
     color: $white;
-}
-
-.app{
-    width: 100vw;
-    height: 100vh;
-    overflow-y: scroll;
 }
 
 .bubble {
@@ -76,34 +68,30 @@ p{
     padding: 1rem;
 }
 
+$navWidth: 125px;
+
+.nav-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: $navWidth;
+    height: 100vh;
+    background-color: $white;
+}
+
+.app {
+    margin: 0 auto;
+    position: fixed;
+    padding: 1rem;
+    top: 0;
+    left: $navWidth;
+    height: 100%;
+    width: calc(100% - $navWidth);
+}
+
 /*
   page header
 */
-
-.title {
-    font-size: 6rem;
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-@include media-breakpoint-down(md) {
-    .title {
-        font-size: 3rem;
-    }
-}
-
-.subtitle {
-    margin-top: -1rem;
-    padding-top: 0;
-    font-size: 1.65rem;
-}
-  
-@include media-breakpoint-down(md) {
-    .subtitle {
-        margin-top: .25rem;
-        font-size: 1.25rem;
-    }
-}
 
 .navLink {
     font-weight: bold;
