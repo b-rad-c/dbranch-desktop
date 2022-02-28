@@ -65,6 +65,13 @@ p{
     padding: 1rem;
 }
 
+.alt-content {
+    width: 65%;
+    margin: 1rem auto;
+    color: $dark;
+    font-weight: bold;
+}
+
 /*
     layout
 */
@@ -102,7 +109,7 @@ $navWidth: 125px;
   nav links
 */
 
-.navLink {
+.nav-link {
     height: $navWidth;
     width: $navWidth;
     font-weight: bold;
@@ -115,7 +122,7 @@ $navWidth: 125px;
     border-right-color: $dark;
 }
 
-.navLink:hover {
+.nav-link:hover {
     text-decoration: underline;
     color: $dark;
 }
@@ -123,17 +130,6 @@ $navWidth: 125px;
 .active, .active:hover {
     background-color: $light;
     text-decoration: none;
-}
-
-/* 
-info page
-*/
-
-.alt-content {
-    width: 65%;
-    margin: 1rem auto;
-    color: $dark;
-    font-weight: bold;
 }
 
 /*

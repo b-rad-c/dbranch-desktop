@@ -10,7 +10,6 @@ import { render } from 'react-dom';
 import { Stack } from 'react-bootstrap'
 import { Routes, Route, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { HashRouter, NavLink } from 'react-router-dom';
-
 import { PencilSquare, HouseDoor, Gear, Folder } from 'react-bootstrap-icons'
 
 function App() {
@@ -24,31 +23,30 @@ function App() {
   })
 
   const iconSize = 42
-  const linkClass = 'navLink'
 
   return (
       
     <div>
       <Stack className='nav-drawer' direction='vertical'>
-        <NavLink className={linkClass} to='/'>
+        <NavLink className='nav-link' to='/'>
           <div className='nav-icon'>
             <HouseDoor size={iconSize}/>
             <br />Home
           </div>
         </NavLink>
-        <NavLink className={linkClass} to='/files'>
+        <NavLink className='nav-link' to='/files'>
           <div className='nav-icon'>
             <Folder size={iconSize}/>
             <br />Files
           </div>
         </NavLink>
-        <NavLink className={linkClass} to='/edit'>
+        <NavLink className='nav-link' to='/edit'>
           <div className='nav-icon'>
             <PencilSquare size={iconSize}/>
             <br />Edit
           </div>
         </NavLink>
-        <NavLink className='navLink' to='/settings'>
+        <NavLink className='nav-link' to='/settings'>
           <div className='nav-icon'>
             <Gear size={iconSize}/>
             <br />Settings
