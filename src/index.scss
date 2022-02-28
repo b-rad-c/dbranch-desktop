@@ -16,8 +16,8 @@ body {
     font-family: 'Courier New', Courier, monospace;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: $white;
+    text-align: left;
+    color: $dark;
 }
 
 main {
@@ -27,13 +27,12 @@ main {
 h1{
     font-size: 2.5rem;
     font-weight: bold;
-    color: $dark;
+    text-align: center;
 }
 
 h2{
     font-size: 1.5rem;
     font-weight: bold;
-    color: $dark;
     margin-bottom: 0;
 }
 
@@ -46,7 +45,6 @@ h3{
 
 p{
     font-size: 1.25rem;
-    color: $white;
 }
 
 .bubble {
@@ -64,19 +62,25 @@ p{
 .content {
     background-color: $dark;
     color: $white;
-    text-align: left;
     padding: 1rem;
 }
+
+/*
+    layout
+*/
 
 $navWidth: 125px;
 
 .nav-drawer {
     position: fixed;
+    text-align: center;
     top: 0;
     left: 0;
     width: $navWidth;
     height: 100vh;
     background-color: $white;
+    border-right: solid;
+    border-right-color: $dark;
 }
 
 .app {
@@ -100,10 +104,15 @@ $navWidth: 125px;
     text-decoration: none;
     color: $dark;
     font-size: 1.25rem;
+    border-bottom: solid;
+    border-bottom-color: $dark;
+    border-right: solid;
+    border-right-color: $dark;
 }
 
 .navLink:hover {
     text-decoration: underline;
+    color: $dark;
 }
 
 .active, .active:hover {
@@ -115,21 +124,9 @@ $navWidth: 125px;
 info page
 */
 
-.info-content {
-    width: 60%;
+.alt-content {
+    width: 65%;
     margin: 1rem auto;
-}
-
-@include media-breakpoint-down(md) {
-    .info-content {
-        width: 81%;
-        margin: 1rem auto;
-    }
-}
-
-@include media-breakpoint-down(sm) {
-    .info-content {
-        width: 100%;
-        margin: 1rem auto;
-    }
+    color: $dark;
+    font-weight: bold;
 }

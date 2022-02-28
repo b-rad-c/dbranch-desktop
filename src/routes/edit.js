@@ -4,7 +4,7 @@ return (
 <main>
     <div className='content'>
         <h3>Edit</h3>
-        <p>hi</p>
+        <p className='content'>hi</p>
     </div>
 </main>
 );
