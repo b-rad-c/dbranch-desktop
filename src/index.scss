@@ -83,6 +83,11 @@ $navWidth: 125px;
     border-right-color: $dark;
 }
 
+.nav-icon {
+    position: relative;
+    top: 25px;
+}
+
 .app {
     margin: 0 auto;
     position: fixed;
@@ -128,5 +133,23 @@ info page
     width: 65%;
     margin: 1rem auto;
     color: $dark;
+    font-weight: bold;
+}
+
+/*
+ alert
+ */ 
+
+.alert {
+    height: 5%;
+    width: 50%;
+    margin: 0 auto;
+}
+
+.alert-text {
+    font-size: 1rem;
+}
+
+.alert-heading {
     font-weight: bold;
 }

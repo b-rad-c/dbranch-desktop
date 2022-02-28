@@ -31,23 +31,28 @@ function App() {
     <div>
       <Stack className='nav-drawer' direction='vertical'>
         <NavLink className={linkClass} to='/'>
-          <div style={{marginTop: 'auto', marginBottom: 'auto', width: '100%', height: '100%'}}>
-            <div><HouseDoor size={iconSize}/></div>
-            <div>Home</div>
+          <div className='nav-icon'>
+            <HouseDoor size={iconSize}/>
+            <br />Home
           </div>
-          
         </NavLink>
         <NavLink className={linkClass} to='/files'>
+          <div className='nav-icon'>
             <Folder size={iconSize}/>
             <br />Files
+          </div>
         </NavLink>
         <NavLink className={linkClass} to='/edit'>
-          <PencilSquare size={iconSize}/>
-          <br />Edit
+          <div className='nav-icon'>
+            <PencilSquare size={iconSize}/>
+            <br />Edit
+          </div>
         </NavLink>
-        <NavLink className={linkClass} to='/settings'>
-          <Gear size={iconSize}/>
-          <br />Settings
+        <NavLink className='navLink' to='/settings'>
+          <div className='nav-icon'>
+            <Gear size={iconSize}/>
+            <br />Settings
+          </div>
         </NavLink>
       </Stack>
       <div className='app bg-light bg-gradient'>
