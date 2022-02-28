@@ -1,44 +1,51 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.scss'
-import Main from "./routes/main";
+import MainPage from "./routes/main";
 import EditPage from "./routes/edit";
-import Settings from "./routes/settings";
+import SettingsPage from "./routes/settings";
 
 import { useEffect } from 'react';
 import { render } from "react-dom";
-import Container from 'react-bootstrap/Container'
+import { Container, Stack } from 'react-bootstrap'
 import { Routes, Route, Outlet, useNavigate, useLocation } from "react-router-dom";
-import { unstable_HistoryRouter as HistoryRouter } from "react-router-dom";
-import { createBrowserHistory } from "history"
+import { HashRouter, NavLink } from "react-router-dom";
 
 
 function App() {
   let navigate = useNavigate();
   let location = useLocation();
   useEffect(() => {
-    window.electronAPI.handleOpenTab((_, value) => {
-      console.log(location)
+    window.dBranch.handleNavigateTo((_, value) => {
+      console.log('from "' + location.pathname + '" to "' + value + '"')
       navigate(value, {state: {returnTo: location.pathname}})
     })
   })
 
   return (
+      
     <Container fluid="md">
-      <Outlet />
+      <Stack className="nav-drawer" direction="vertical">
+        <NavLink to="/">Home</NavLink>
+        <NavLink to="/edit">Edit</NavLink>
+        <NavLink to="/settings">Settings</NavLink>
+      </Stack>
+      <div className='app bg-light bg-gradient'>
+        <Outlet/>
+      </div>
+      
     </Container>
+    
   );
 }
 
-const history = createBrowserHistory({ window });
-
-render(  
-  <div className="app position-absolute top-0 start-0 bg-light bg-gradient">
-    <HistoryRouter history={history}>
+function Root() {
+  return (
+    <HashRouter>
       <Routes>
         <Route path="/" element={<App />}>
-          <Route index element={<Main />} />
+          <Route index element={<MainPage />} />
           <Route path="edit" element={<EditPage />} />
-          <Route path="settings" element={<Settings />} />
+          <Route path="settings" element={<SettingsPage />} />
           <Route
             path="*"
             element={
@@ -49,7 +56,13 @@ render(
           />
         </Route>
       </Routes>
-    </HistoryRouter>
+    </HashRouter>
+  )
+}
+
+render(  
+  <div>
+    <Root />
   </div>,
   document.getElementById("root")
 );

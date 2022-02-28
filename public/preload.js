@@ -1,5 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
-contextBridge.exposeInMainWorld('electronAPI', {
-  handleOpenTab: (callback) => ipcRenderer.on('open-tab', callback)
+contextBridge.exposeInMainWorld('dBranch', {
+  handleNavigateTo: (callback) => ipcRenderer.on('navigate-to', callback)
 })
