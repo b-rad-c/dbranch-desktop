@@ -31,12 +31,13 @@ export default function SettingsPage(props) {
         </Alert>
         <h1>Settings</h1>
         
-        <Form className='alt-content'>
-            <Form.Group as={Row} className='mb-3' controlId='input-ipfs-host'>
-                <Form.Label column>
-                    IPFS Host :: 
-                </Form.Label>
-                <Col sm={10}>
+        <Form className='alt-content' style={{width: '70%'}}>
+            <Form.Group as={Row} controlId='input-ipfs-host'>
+                <Col sm={2}>
+                    <Form.Label column>IPFS Host :: </Form.Label>
+                </Col>
+                
+                <Col>
                     <InputGroup>
                         <Button variant='secondary' onClick={testIPFSConnection}>Test</Button>
                         <Form.Control type='string' value={settings.ipfsHost} onChange={ipfsHostHandler} />
