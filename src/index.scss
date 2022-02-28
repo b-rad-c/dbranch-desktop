@@ -90,10 +90,12 @@ $navWidth: 125px;
 }
 
 /*
-  page header
+  nav links
 */
 
 .navLink {
+    height: $navWidth;
+    width: $navWidth;
     font-weight: bold;
     text-decoration: none;
     color: $dark;
@@ -102,11 +104,11 @@ $navWidth: 125px;
 
 .navLink:hover {
     text-decoration: underline;
-    color: $dark;
 }
 
-.active {
-    text-decoration: underline;
+.active, .active:hover {
+    background-color: $light;
+    text-decoration: none;
 }
 
 /* 
