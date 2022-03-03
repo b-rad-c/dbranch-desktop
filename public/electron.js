@@ -15,6 +15,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: width * (2/3), 
     height: height,
+    titleBarStyle: 'hiddenInset',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
@@ -34,6 +35,11 @@ app.whenReady().then(() => {
       // osx behaviour, when activating app, open a window if none are open
       if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+  console.log('* HOME', app.getPath('home'))
+  console.log('* APPDATA', app.getPath('appData'))
+  console.log('* USERDATA', app.getPath('userData'))
+  console.log('* DOCUMENTS', app.getPath('documents'))
+  console.log('* LOGS', app.getPath('logs'))
 })
 
 // quit program when all windows are closed to emulate windows and linux environments (unless in dev mode)

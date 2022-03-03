@@ -29,9 +29,8 @@ export default function SettingsPage(props) {
             <Alert.Heading>Testing IPFS connection</Alert.Heading>
             <p className='alert-text'>host: {settings.ipfsHost}<br />result: {testResult.msg}</p>
         </Alert>
-        <h1>Settings</h1>
         
-        <Form className='alt-content' style={{width: '70%'}}>
+        <Form className='content' style={{width: '70%'}}>
             <Form.Group as={Row} controlId='input-ipfs-host'>
                 <Col sm={2}>
                     <Form.Label column>IPFS Host :: </Form.Label>

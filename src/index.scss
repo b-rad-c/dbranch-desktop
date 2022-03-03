@@ -43,6 +43,10 @@ h3{
     color: $white;
 }
 
+.inline-header {
+    font-size: 1.5rem;
+}
+
 p{
     font-size: 1.25rem;
 }
@@ -59,15 +63,19 @@ p{
     width: 65%;
 }
 
-.content {
+.alt-content {
     background-color: $dark;
     color: $white;
+    width: 100%;
     padding: 1rem;
 }
 
-.alt-content {
+.content {
     padding: 1rem;
     color: $dark;
+    margin: 1rem;
+    margin-top: 0;
+    padding: 1rem;
 }
 
 .col-form-label {
@@ -79,37 +87,69 @@ p{
 */
 
 $navWidth: 125px;
+$headerHeight: 42px;
 
 .nav-drawer {
     position: fixed;
-    text-align: center;
-    top: 0;
+    top: $headerHeight;
     left: 0;
     width: $navWidth;
-    height: 100vh;
+    height: calc(100% - $headerHeight);
+
+    text-align: center;
+    
     background-color: $white;
     border-right: solid;
     border-right-color: $dark;
 }
 
-.nav-icon {
-    position: relative;
-    top: 25px;
+.header {
+    -webkit-app-region: drag;
+
+    position: fixed;
+    height: $headerHeight;
+    width: 100%;
+    top: 0;
+    left: 0;
+
+    padding: 0;
+    
+    margin: 0;
+
+    background-color: $dark;
+    color: $light;
+    
+    font-weight: bold;
+    font-size: 1.5rem;
+    
+}
+
+.header-content {
+    vertical-align: middle;
+    margin-left: calc($navWidth);
 }
 
 .app {
     margin: 0 auto;
     position: fixed;
-    padding: 1rem;
-    top: 0;
-    left: $navWidth;
-    height: 100%;
+
+    height: calc(100% - $headerHeight);
     width: calc(100% - $navWidth);
+
+    top: $headerHeight;
+    left: $navWidth;
+
+    padding: 0;
 }
 
 /*
-  nav links
+  nav
 */
+
+.nav-icon {
+    position: relative;
+    top: 25px;
+}
 
 .nav-link {
     height: $navWidth;
@@ -156,9 +196,19 @@ $navWidth: 125px;
 article
 */
 
+.article {
+
+}
+
+/* article header */
 .article-header {
-    padding: 5px;
+    margin-top: 1rem;;
+    padding: .5rem;
     border-radius: 10px;
+}
+
+.article-header-viewer {
+
 }
 
 .article-header-can-edit{
@@ -170,7 +220,7 @@ article
     
 }
 
-.article-header-viewer {
+.article-header-form {
 
 }
 
@@ -193,8 +243,4 @@ article
 
 .article-by-line-name {
     font-style: italic;
-}
-
-.article-header-form {
-
 }

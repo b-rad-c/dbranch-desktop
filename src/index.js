@@ -24,35 +24,35 @@ function App() {
 
   const iconSize = 42
 
+  const paths = [
+    ['/', 'Home', (<HouseDoor size={iconSize} />)],
+    ['/files', 'Files', (<Folder size={iconSize} />)],
+    ['/edit', 'Editor', (<PencilSquare size={iconSize} />)],
+    ['/settings', 'Settings', (<Gear size={iconSize} />)],
+  ]
+
+  const route = paths.filter(path => path[0] === location.pathname)[0]
+  const currentRouteLabel = route ? route[1] : ''
+
   return (
-      
+
     <div>
       <Stack className='nav-drawer' direction='vertical'>
-        <NavLink className='nav-link' to='/'>
-          <div className='nav-icon'>
-            <HouseDoor size={iconSize}/>
-            <br />Home
-          </div>
-        </NavLink>
-        <NavLink className='nav-link' to='/files'>
-          <div className='nav-icon'>
-            <Folder size={iconSize}/>
-            <br />Files
-          </div>
-        </NavLink>
-        <NavLink className='nav-link' to='/edit'>
-          <div className='nav-icon'>
-            <PencilSquare size={iconSize}/>
-            <br />Edit
-          </div>
-        </NavLink>
-        <NavLink className='nav-link' to='/settings'>
-          <div className='nav-icon'>
-            <Gear size={iconSize}/>
-            <br />Settings
-          </div>
-        </NavLink>
+        {
+          paths.map((path, index) => {
+            return (
+              <NavLink key={index} className='nav-link' to={path[0]}>
+                <div className='nav-icon'>
+                  {path[2]}<br />{path[1]}
+                </div>
+              </NavLink>
+            )
+          })
+        }
       </Stack>
+
+      <div className='header'><span className='header-content'>dBranch.news :: {currentRouteLabel}</span></div>
+
       <div className='app bg-light bg-gradient'>
         <Outlet/>
       </div>
@@ -62,41 +62,45 @@ function App() {
   );
 }
 
+
 const defaultSettings = {
-  ipfsHost: 'http://127.0.0.1:5001'
+  ipfsHost: 'http://127.0.0.1:5001',
+  draftFolder: '/Users/folder'
 }
+
 
 function Root() {
-const [ settings, setSettings ] = useState(defaultSettings)
-const resetSettings = () => setSettings(defaultSettings)
-const updateSetting = (prop, value) => {
-    setSettings(prevState => {
-        const updates = {}
-        updates[prop] = value
-        return {...prevState, ...updates}
-    })
-}
 
-return (
-<HashRouter>
-  <Routes>
-    <Route path='/' element={<App />}>
-      <Route index element={<MainPage />} />
-      <Route path='edit' element={<EditPage />} />
-      <Route path='files' element={<FilesPage />} />
-      <Route path='settings' element={<SettingsPage settings={settings} updateSetting={updateSetting} resetSettings={resetSettings} />} />
-      <Route
-        path='*'
-        element={
-          <main style={{ padding: '1rem' }}>
-            <p>Error: invalid route</p>
-          </main>
-        }
-      />
-    </Route>
-  </Routes>
-</HashRouter>
-)
+  const [ settings, setSettings ] = useState(defaultSettings)
+  const resetSettings = () => setSettings(defaultSettings)
+  const updateSetting = (prop, value) => {
+      setSettings(prevState => {
+          const updates = {}
+          updates[prop] = value
+          return {...prevState, ...updates}
+      })
+  }
+
+  return (
+  <HashRouter>
+    <Routes>
+      <Route path='/' element={<App />}>
+        <Route index element={<MainPage />} />
+        <Route path='edit' element={<EditPage />} />
+        <Route path='files' element={<FilesPage settings={settings} />} />
+        <Route path='settings' element={<SettingsPage settings={settings} updateSetting={updateSetting} resetSettings={resetSettings} />} />
+        <Route
+          path='*'
+          element={
+            <main style={{ padding: '1rem' }}>
+              <p className='text-danger font-weight-bold'>Error: invalid route</p>
+            </main>
+          }
+        />
+      </Route>
+    </Routes>
+  </HashRouter>
+  )
 }
 
 render(  

@@ -1,41 +1,25 @@
 import { Form, FormControl, InputGroup, Button } from 'react-bootstrap';
 import { useState } from 'react';
-import { loremIpsum } from 'lorem-ipsum';
+import { randomArticleTitle, randomArticleSubTitle, randomName } from '../utilities/generators';
+
 
 //
-// generators
+// article
 //
 
-function generateTitle() {
-    const words = loremIpsum({
-        sentenceLowerBound: 3,
-        sentenceUpperBound: 7,
-        suffix: '',
-        units: 'sentences'
-      }).replace('.', '').split(' ')
-    for (var i = 0; i < words.length; i++) {
-        if(words[i].length < 4) continue
-        words[i] = words[i][0].toUpperCase() + words[i].substring(1);
-    }
-    return words.join(' ');
-}
+export default function Article() {
+    
+    const [ title, setTitle] = useState('Untitled Article')
+    const [ subTitle, setSubTitle] = useState('Enter subtitle here...')
+    const [ author, setAuthor] = useState('John Doe')
 
-function generateSubTitle() {
-    return loremIpsum({
-        sentenceLowerBound: 7,
-        sentenceUpperBound: 15,
-        suffix: '',
-        units: 'sentences'
-      }).replace('.', '')
-}
-
-function generateAuthor() {
-    const author = loremIpsum({
-        count: 2,
-        suffix: '',
-        units: 'words'
-      })
-    return author[0].toUpperCase() + author.substring(1);
+    const header = {title, setTitle, subTitle, setSubTitle, author, setAuthor}
+ 
+    return (
+        <div className='article'>
+            <ArticleHeader canEdit={true} editOnOpen={true} header={header} />
+        </div>
+    );
 }
 
 //
@@ -73,13 +57,13 @@ export function ArticleHeaderViewer(props) {
 export function ArticleHeaderForm(props) {
     const header = props.header
     const titleHandler = (e) => { header.setTitle(e.target.value)}
-    const randomTitle = () => header.setTitle(generateTitle)
+    const randomTitle = () => header.setTitle(randomArticleTitle())
 
     const subTitleHandler = (e) => { header.setSubTitle(e.target.value)}
-    const randomSubTitle = () => header.setSubTitle(generateSubTitle)
+    const randomSubTitle = () => header.setSubTitle(randomArticleSubTitle())
 
     const authorHandler = (e) => { header.setAuthor(e.target.value)}
-    const randomAuthor = () => header.setAuthor(generateAuthor())
+    const randomAuthor = () => header.setAuthor(randomName())
 
     return (
     <Form className='article-header-form' style={{width: '70%'}}>
@@ -101,30 +85,18 @@ export function ArticleHeaderForm(props) {
     );
 }
 
-
 //
-// article
+// article body
 //
 
-export default function Article() {
-    const [ title, setTitle] = useState('Untitled')
-    const [ subTitle, setSubTitle] = useState('Enter subtitle here')
-    const [ author, setAuthor] = useState('Firstname Lastname')
-    const header = {title, setTitle, subTitle, setSubTitle, author, setAuthor}
+export function ArticleBody(props) {
 
-    return (
-        <div>
-            <ArticleForm canEdit={true} editOnOpen={true} header={header} />
-        </div>
-        );
 }
 
+export function ArticleParagraphViewer(props) {
 
-export function ArticleForm(props) {
-    
-    return (
-    <div>
-        <ArticleHeader canEdit={props.canEdit} editOnOpen={props.editOnOpen} header={props.header} />
-    </div>
-    );
+}
+
+export function ArticleParagraphForm(props) {
+
 }

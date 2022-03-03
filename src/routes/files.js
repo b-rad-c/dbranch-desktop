@@ -1,16 +1,14 @@
-export default function FilesPage() {
+export default function FilesPage(props) {
 
+const label = 'files'
 return (
 <main>
     <div className='content'>
-        <h3>Published files</h3>
+        <p className='inline-header'><strong>published :: </strong>0 {label}</p>
     </div>
-    <p>...</p>
-
     <div className='content'>
-        <h3>Draft files</h3>
+        <p className='inline-header'><strong>draft :: </strong>0 {label}</p>
     </div>
-    <p>...</p>
 </main>
 );
 }
