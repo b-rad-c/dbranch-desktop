@@ -1,3 +1,4 @@
+import 'react-quill/dist/quill.snow.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.scss'
 import MainPage from './routes/main';

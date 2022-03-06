@@ -1,6 +1,7 @@
 import { Form, FormControl, InputGroup, Button } from 'react-bootstrap';
-import { useState } from 'react';
-import { randomArticleTitle, randomArticleSubTitle, randomName } from '../utilities/generators';
+import React, { useState, useRef } from "react";
+import { randomArticleTitle, randomArticleBody, randomArticleSubTitle, randomName } from '../utilities/generators';
+import ReactQuill from 'react-quill';
 
 
 //
@@ -18,6 +19,8 @@ export default function Article() {
     return (
         <div className='article'>
             <ArticleHeader canEdit={true} editOnOpen={true} header={header} />
+            <hr />
+            <ArticleBody />
         </div>
     );
 }
@@ -90,13 +93,30 @@ export function ArticleHeaderForm(props) {
 //
 
 export function ArticleBody(props) {
+    return (<ArticleBodyForm />)
+}
+
+export function ArticleBodyViewer(props) {
 
 }
 
-export function ArticleParagraphViewer(props) {
+export function ArticleBodyForm(props) {
+    const [value, setValue] = useState('');
+    const editorRef = useRef(null);
+    const logContents = () => { 
+        console.log(editorRef)
+        const editor = editorRef.current.getEditor()
+        
+        console.log(editor.getText())
+        console.log(editor.getContents())
+     }
 
-}
-
-export function ArticleParagraphForm(props) {
-
+    return (
+        <div>
+            <ReactQuill ref={editorRef} theme="snow" value={value} onChange={setValue} placeholder='Type away!'/>
+            <Button onClick={logContents}>Log</Button>
+            &emsp;
+            <Button onClick={() => setValue(randomArticleBody())}>Random</Button>
+        </div>
+    );
 }

@@ -4,6 +4,21 @@ import { loremIpsum } from 'lorem-ipsum';
 // generators
 //
 
+const firstNames = ['Ashley', 'John', 'Jane', 'Brad', 'Chris', 'Laura', 'Megan', 'Fred', 'Alice', 'Bob', 'Samantha']
+const lastNames = ['Johnson', 'Doe', 'Smith', 'Peterson', 'Fridman', 'Stewart', 'Thompson']
+
+function randomInteger(min, max) { 
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min;
+ }
+function randomChoice(list) { return list[randomInteger(0, list.length)] }
+
+
+export function randomName() {
+    return randomChoice(firstNames) + ' ' + randomChoice(lastNames)
+}
+
 export function randomArticleTitle() {
     const words = loremIpsum({
         sentenceLowerBound: 3,
@@ -27,20 +42,13 @@ export function randomArticleSubTitle() {
       }).replace('.', '')
 }
 
-const firstNames = ['Ashley', 'John', 'Jane', 'Brad', 'Chris', 'Laura', 'Megan', 'Fred', 'Alice', 'Bob', 'Samantha']
-const lastNames = ['Johnson', 'Doe', 'Smith', 'Peterson', 'Fridman', 'Stewart', 'Thompson']
 
-function randomInteger(min, max) { 
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min;
- }
-function randomChoice(list) { return list[randomInteger(0, list.length)] }
-
-
-export function randomName() {
-    console.log(firstNames)
-    console.log(randomInteger(0, 10))
-    console.log(randomChoice(firstNames))
-    return randomChoice(firstNames) + ' ' + randomChoice(lastNames)
+export function randomArticleBody() {
+    return loremIpsum({
+        paragraphLowerBound: 3,  // Min. number of sentences per paragraph.
+        paragraphUpperBound: 7,  // Max. number of sentences per paragarph.
+        sentenceLowerBound: 5,   // Min. number of words per sentence.
+        sentenceUpperBound: 15,  // Max. number of words per sentence.
+        units: 'paragraphs',      // paragraph(s), "sentence(s)", or "word(s)"
+      })
 }
