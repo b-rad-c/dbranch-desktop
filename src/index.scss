@@ -46,7 +46,6 @@ h3{
 .inline-header {
     font-size: 1.5rem;
     display: inline-block;
-    margin-left: 1rem;
 }
 
 p{
@@ -195,8 +194,25 @@ $headerHeight: 42px;
 }
 
 /*
-article
+editor / article
 */
+
+.editor-header {
+    width: 66%;
+}
+
+.editor-document-name {
+    margin-top: 1rem;;
+    padding: .5rem;
+    position: relative;
+    left: -.5rem;
+    border-radius: 10px;
+    width: 100%;
+}
+
+.editor-document-name-closed:hover {
+    background-color: $white;
+}
 
 .article {
 

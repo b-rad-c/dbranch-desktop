@@ -45,10 +45,11 @@ export function randomArticleSubTitle() {
 
 export function randomArticleBody() {
     return loremIpsum({
-        paragraphLowerBound: 3,  // Min. number of sentences per paragraph.
-        paragraphUpperBound: 7,  // Max. number of sentences per paragarph.
-        sentenceLowerBound: 5,   // Min. number of words per sentence.
-        sentenceUpperBound: 15,  // Max. number of words per sentence.
-        units: 'paragraphs',      // paragraph(s), "sentence(s)", or "word(s)"
+        count: 1,
+        paragraphLowerBound: 3,
+        paragraphUpperBound: 7,
+        sentenceLowerBound: 5,
+        sentenceUpperBound: 15,
+        units: 'paragraphs',
       })
 }
