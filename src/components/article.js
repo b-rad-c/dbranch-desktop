@@ -1,4 +1,4 @@
-import { Form, FormControl, InputGroup, Button, Stack } from 'react-bootstrap'
+import { Form, FormControl, InputGroup, Button, Stack, Row, Col, Spinner } from 'react-bootstrap'
 import React, { useState } from "react"
 import { randomArticleTitle, randomArticleBody, randomArticleSubTitle, randomName } from '../utilities/generators'
 import ReactQuill from 'react-quill'
@@ -8,19 +8,17 @@ import ReactQuill from 'react-quill'
 // article
 //
 
-export default function Article(props) {
+export default function ArticleEditor(props) {
     const article = props.article
-    const documentSaveHandler = props.documentSaveHandler
+    const saveDocument = props.saveDocument
+    const savingDocument = props.savingDocument
     const editorRef = props.editorRef
-
-    // body
     const [content, setContent] = useState(article.contents);
     
- 
     return (
         <div className='article'>
-            <ArticleHeader canEdit={true} editOnOpen={false} article={article} />
-            <ArticleBody articleBody={{content, setContent, editorRef, documentSaveHandler}} />
+            <ArticleEditorHeader article={article} savingDocument={savingDocument}/>
+            <ArticleEditorBody articleBody={{content, setContent, editorRef, saveDocument, savingDocument}} />
         </div>
     );
 }
@@ -29,36 +27,12 @@ export default function Article(props) {
 // article header
 //
 
-export function ArticleHeader(props) {
-    const [ editing, setEditing] = useState(props.editOnOpen && props.canEdit ? true : false)
-    const flipEditing = () => setEditing(!editing)
-    const headingClickHandler = () => { if(!editing) flipEditing() }
-    const headerClass = (!editing && props.canEdit) ? 'article-header article-header-can-edit' : 'article-header'
-    return (
-        <div className={headerClass} onClick={headingClickHandler}>
-            {editing && <ArticleHeaderForm article={props.article}/>}
-            {editing && <Button onClick={flipEditing}>Done</Button>}
-            {!editing && <ArticleHeaderViewer article={props.article}/>}
-        </div>
-    );
-}
 
-export function ArticleHeaderViewer(props) {
-    const doc = props.article.doc
-    return (
-        <div className='article-header-viewer'>
-            <h1 className='article-title'>{doc.title}</h1>
-            <h2 className='article-subtitle'>{doc.subTitle}</h2>
-            <p className='article-by-line'>
-                <span className='article-by-line-label'>Author :: </span>
-                <span className='article-by-line-name'>{doc.author}</span>
-            </p>
-        </div>
-    );
-}
-
-export function ArticleHeaderForm(props) {
+export function ArticleEditorHeader(props) {
     const article = props.article
+    const disabled = props.savingDocument
+    const nameHandler = (e) => article.updateDoc('name', e.target.value)
+
     const titleHandler = (e) => article.updateDoc('title', e.target.value)
     const randomTitle = () => article.updateDoc('title', randomArticleTitle())
 
@@ -70,20 +44,43 @@ export function ArticleHeaderForm(props) {
 
     return (
     <Form className='article-header-form' style={{width: '70%'}}>
-        <InputGroup className="mb-3">
-            <Button variant="secondary" id="button-addon1" onClick={randomTitle}>Random</Button>
-            <FormControl type='string' placeholder='Enter title...' value={article.doc.title} onChange={titleHandler} />
-        </InputGroup>
+        <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={2}>document ::</Form.Label>
+            <Col>
+                <FormControl disabled={disabled} type='string' placeholder='Enter filename...' value={article.doc.name} onChange={nameHandler} />
+            </Col>
+        </Form.Group>
+            
+        <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={2}>title ::</Form.Label>
+            <Col>
+                <InputGroup className="mb-3">
+                    <Button disabled={disabled} variant="secondary" id="button-addon1" onClick={randomTitle}>Random</Button>
+                    <FormControl disabled={disabled} type='string' placeholder='Enter title...' value={article.doc.title} onChange={titleHandler} />
+                </InputGroup>
+            </Col>
+        </Form.Group>
 
-        <InputGroup className="mb-3">
-            <Button variant="secondary" id="button-addon1" onClick={randomSubTitle}>Random</Button>
-            <FormControl as='textarea' placeholder='Enter subtitle...' style={{height: '65px'}} value={article.doc.subTitle} onChange={subTitleHandler}/>
-        </InputGroup>
-
-        <InputGroup className="mb-3">
-            <Button variant="secondary" id="button-addon1" onClick={randomAuthor}>Random</Button>
-            <FormControl type='string' placeholder='Enter title...' value={article.doc.author} onChange={authorHandler} />
-        </InputGroup>
+        <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={2}>subtitle ::</Form.Label>
+            <Col>
+                <InputGroup className="mb-3">
+                    <Button disabled={disabled} variant="secondary" id="button-addon1" onClick={randomSubTitle}>Random</Button>
+                    <FormControl disabled={disabled} as='textarea' placeholder='Enter subtitle...' style={{height: '65px'}} value={article.doc.subTitle} onChange={subTitleHandler}/>
+                </InputGroup>
+            </Col>
+        </Form.Group>
+        
+        <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={2}>author ::</Form.Label>
+            <Col>
+                <InputGroup className="mb-3">
+                    <Button disabled={disabled} variant="secondary" id="button-addon1" onClick={randomAuthor}>Random</Button>
+                    <FormControl disabled={disabled} type='string' placeholder='Enter title...' value={article.doc.author} onChange={authorHandler} />
+                </InputGroup>
+            </Col>
+        </Form.Group>
+        
     </Form>
     );
 }
@@ -92,25 +89,19 @@ export function ArticleHeaderForm(props) {
 // article body
 //
 
-export function ArticleBody(props) {
-    return (<ArticleBodyForm articleBody={props.articleBody} />)
-}
-
-export function ArticleBodyViewer(props) {
-
-}
-
-export function ArticleBodyForm(props) {
+export function ArticleEditorBody(props) {
     const body = props.articleBody
 
     return (
         <div className='mt-2'>
-            <ReactQuill ref={body.editorRef} theme="snow" value={body.content} onChange={body.setContent} placeholder='Type away!'/>
+            <ReactQuill ref={body.editorRef} readOnly={body.savingDocument} theme="snow" value={body.content} onChange={body.setContent} placeholder='Type away!'/>
             <Stack className='mt-2' direction='horizontal' gap={2}>
-                <Button onClick={body.documentSaveHandler}>Save</Button>
-                <Button onClick={() => body.setContent(randomArticleBody())}>Random</Button>
+                <Button onClick={body.saveDocument}>
+                    { body.savingDocument && <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />}
+                    <span>Save</span>
+                </Button>
+                <Button disabled={body.savingDocument} onClick={() => body.setContent(randomArticleBody())}>Random</Button>
             </Stack>
-            
         </div>
     );
 }

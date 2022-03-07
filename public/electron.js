@@ -1,5 +1,6 @@
 const { app, BrowserWindow, Menu, ipcMain } = require('electron')
 const path = require('path');
+const fs = require('fs')
 
 //
 // config
@@ -26,20 +27,31 @@ function createWindow() {
 }
 
 //
+// app logic
+//
+
+const userDocumentsRoot = path.join(app.getPath('documents'), 'dBranch')
+
+function writeUserDocument(fileName, fileContents) {
+  console.log('* making dir:', userDocumentsRoot)
+  fs.mkdirSync(userDocumentsRoot, {recursive: true})
+  const filePath = path.join(userDocumentsRoot, fileName)
+  console.log('* writing user document:', filePath)
+  fs.writeFileSync(filePath, fileContents)
+}
+
+
+//
 // initialize app
 //
 
 app.whenReady().then(() => {
+  ipcMain.handle('write-user-document', (_, fileName, fileContents) => { writeUserDocument(fileName, fileContents) })
   createWindow()
   app.on('activate', () => {
       // osx behaviour, when activating app, open a window if none are open
       if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
-  console.log('* HOME', app.getPath('home'))
-  console.log('* APPDATA', app.getPath('appData'))
-  console.log('* USERDATA', app.getPath('userData'))
-  console.log('* DOCUMENTS', app.getPath('documents'))
-  console.log('* LOGS', app.getPath('logs'))
 })
 
 // quit program when all windows are closed to emulate windows and linux environments (unless in dev mode)

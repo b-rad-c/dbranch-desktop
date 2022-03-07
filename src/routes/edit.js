@@ -1,9 +1,9 @@
-import Article from '../components/article'
-import { useState, useRef } from 'react';
-import { Button, Form, Row, Col, InputGroup } from 'react-bootstrap'
+import ArticleEditor from '../components/article'
+import { useState, useRef, useEffect } from 'react';
+import { Button, Alert } from 'react-bootstrap'
 import Delta from 'quill-delta'
 
-export class ArticleEditor {
+export class Article {
     constructor(name, title, subTitle, author, contents) {
         this.defaultName = 'Untitled article.news'
         this.name = name ? name : this.defaultName
@@ -37,17 +37,19 @@ export default function EditPage() {
     // definitions
     //
 
-    const [ showing, setShowing ] = useState('landing')
-    const show = (name) => { return name === showing }
+    const [ showEditor, setShowEditor ] = useState(false)
+    const [ savingDocument, setSavingDocument ] = useState(false)
+    const saveDocument = () => setSavingDocument(true)
 
-    const defaultDoc = new ArticleEditor() 
+    const [ showSaveSuccessMsg, setShowSaveSuccessMsg ] = useState(false)
+
+    const toggleEditor = () => setShowEditor(!showEditor)
+    const toggleButtonLabel = showEditor ? 'Back' : 'New Article'
+
+    const [ errorMsg, setErrorMsg ] = useState('')
+
+    const defaultDoc = new Article() 
     const [ doc, setDoc ] = useState({...defaultDoc}) // instantiate to get default values
-
-    const editorRef = useRef(null);
-
-    //
-    // handlers
-    //
 
     const updateDoc = (prop, value) => {
         setDoc(prevDoc => {
@@ -57,55 +59,45 @@ export default function EditPage() {
         })
     }
 
-    const documentSaveHandler = () => { 
-        const newDoc = Object.assign(new ArticleEditor(), doc)
-        newDoc.contents = editorRef.current.getEditor().getContents()
-        
-        console.log(newDoc.fileString())
-    }
-    
     const article = { doc, setDoc, updateDoc }
+
+    const editorRef = useRef(null);
+
+    useEffect(() => {
+        if(savingDocument) {
+            const newDoc = Object.assign(new Article(), doc)
+            newDoc.contents = editorRef.current.getEditor().getContents()
+
+            window.dBranch.writeUserDocument(newDoc.name, newDoc.fileString())
+                .then(() => {
+                    console.log('file saved')
+                    setShowSaveSuccessMsg(true); 
+                    setTimeout(() => setShowSaveSuccessMsg(false), 3000)
+                })
+                .catch((err) => { console.error(err); setErrorMsg(err.toString())})   
+                .finally(() => setSavingDocument(false))
+        }
+        
+    }, [savingDocument, doc])
 
     return (
     <main>
+        <Alert variant='success' show={showSaveSuccessMsg} dismissible>
+            <Alert.Heading>File saved</Alert.Heading>
+            <p className='alert-text'>{doc.name}</p>
+        </Alert>
+        <Alert variant='danger' show={errorMsg !== ''} dismissible>
+            <Alert.Heading>Error saving file</Alert.Heading>
+            <p className='alert-text'>{errorMsg}</p>
+        </Alert>
         <div className='content'>
         
             <div className='editor-header'>
-                {show('landing') && <Button onClick={() => setShowing('article')}>New Article</Button>}
-                {!show('landing') && <DocumentName article={article} setShowing={setShowing} />}
+                <Button onClick={toggleEditor}>{toggleButtonLabel}</Button>
             </div>
             
-            {show('article') && <Article article={article} editorRef={editorRef} documentSaveHandler={documentSaveHandler} />}
+            {showEditor && <ArticleEditor article={article} editorRef={editorRef} saveDocument={saveDocument} savingDocument={savingDocument} />}
         </div>
     </main>
     );
-}
-
-export function DocumentName(props) {
-    const [editDocName, setEditDocName] = useState(false)
-    const handleDocName = (e) => props.article.updateDoc('name', e.target.value)
-    const handleOpenInput = () => { if(!editDocName) setEditDocName(true) }
-    const handleCloseInput = () => setEditDocName(false)
-    const formClass = editDocName ? 'inline-header editor-document-name' : 'inline-header editor-document-name editor-document-name-closed'
-
-    return (
-        <Form className={formClass} onClick={handleOpenInput}>
-            <Row style={{padding: 0, margin: 0, columnGap: 0}}>
-                <Col xs={4}  className='text-start' style={{columnGap: 0}}>
-                    <Button onClick={() => props.setShowing('landing')}>&larr; Back</Button>
-                    &emsp;<Form.Label htmlFor="inputPassword5"><strong>editing :: </strong></Form.Label>
-                </Col>
-                <Col className='text-start' style={{columnGap: 0}}>
-                    {!editDocName && <span className='text-start'>{props.article.doc.name}</span>}
-
-                    {editDocName &&
-                        <InputGroup className="mb-3">
-                            <Form.Control type='text' value={props.article.doc.name} placeholder={props.article.doc.defaultName} onChange={handleDocName} />
-                            <Button size='sm' onClick={handleCloseInput}>Done</Button>
-                        </InputGroup>
-                    }
-                </Col>
-            </Row>
-        </Form>
-    )
 }
