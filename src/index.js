@@ -66,7 +66,8 @@ function App() {
 
 const defaultSettings = {
   ipfsHost: 'http://127.0.0.1:5001',
-  draftFolder: '/Users/folder'
+  draftFolder: '/Users/folder',
+  dBranchPublishedDir: '/dBranch/published/'
 }
 
 

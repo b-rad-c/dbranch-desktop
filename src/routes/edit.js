@@ -167,7 +167,7 @@ export default function EditPage(props) {
                 .then((result) => {
                     console.log(result)
                     const ipfsSrc = '/ipfs/' + result.cid
-                    const ipfsFilesDest = '/dBranch/published/' + articleToPublish.name
+                    const ipfsFilesDest = props.settings.dBranchPublishedDir + '/' + articleToPublish.name
                     console.log('copying: ' + ipfsSrc + ' to: ' + ipfsFilesDest)
 
                     //
