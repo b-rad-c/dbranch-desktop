@@ -1,7 +1,8 @@
 import ArticleEditor from '../components/article'
 import { useState, useRef, useEffect } from 'react'
-import { Button, Alert } from 'react-bootstrap'
+import { Button, Alert, Spinner } from 'react-bootstrap'
 import { useLocation } from 'react-router-dom'
+import Delta from 'quill-delta'
 
 
 export class Article {
@@ -17,7 +18,7 @@ export class Article {
     toJSON() {
         return {
             title: this.title,
-            sub_title: this.subTitle,
+            subTitle: this.subTitle,
             author: this.author,
             contents: this.contents
         }
@@ -27,21 +28,13 @@ export class Article {
         return JSON.stringify(this.toJSON())
     }
 
-    static fromJSON(data) {
-        return new Article(data.name, data.title, data.sub_title, data.author, data.contents)
+    static fromJSON(name, data) {
+        return new Article(name, data.title, data.subTitle, data.author, data.contents)
     }
 
-    static fromJSONString(jsonString) {
-        return Article.fromJSON(JSON.parse(jsonString))
+    static fromJSONString(name, jsonString) {
+        return Article.fromJSON(name, JSON.parse(jsonString))
     }
-}
-
-function loadArticle(fileName) {
-    // window.dBranch.loadUserDocument(fileName)
-
-    // parse JSON contents of file
-
-    // return new Article(<parsed json data>)
 }
 
 
@@ -52,8 +45,8 @@ export default function EditPage() {
     //
 
     const location = useLocation()
-    console.log(location)
 
+    const [ loading, setLoading ] = useState(true)
     const [ showEditor, setShowEditor ] = useState(false)
     const [ savingDocument, setSavingDocument ] = useState(false)
     const saveDocument = () => setSavingDocument(true)
@@ -65,8 +58,8 @@ export default function EditPage() {
 
     const [ errorMsg, setErrorMsg ] = useState('')
 
-    const defaultDoc = new Article() 
-    const [ doc, setDoc ] = useState({...defaultDoc}) // instantiate to get default values
+    const defaultDoc = new Article() // instantiate to get default values
+    const [ doc, setDoc ] = useState({...defaultDoc}) 
 
     const updateDoc = (prop, value) => {
         setDoc(prevDoc => {
@@ -77,7 +70,6 @@ export default function EditPage() {
     }
 
     const article = { doc, setDoc, updateDoc }
-
     const editorRef = useRef(null)
 
     //
@@ -85,15 +77,42 @@ export default function EditPage() {
     //
 
     useEffect(() => {
-        // after initial load
-        // if opening existing document:
-            // set loading
-            // loadArticle()
+        let openingDoc = false
+        let docName = null
+        if(location.state !== null) {
+            docName = location.state.open
+            if(typeof docName !== 'undefined') openingDoc = true
+        }
+        if(openingDoc) {
+            console.log('opening: ' + docName)
+            window.dBranch.readUserDocument(docName)
+                .then((fileData) => {
+                    console.log(fileData)
+
+                    const loadedDoc = Article.fromJSONString(docName, fileData)
+                    
+                    setDoc({
+                        name: loadedDoc.name,
+                        title: loadedDoc.title,
+                        subTitle: loadedDoc.subTitle,
+                        author: loadedDoc.author,
+                        contents: new Delta(loadedDoc.contents.ops)
+                    })
+                    
+                    console.log('load finished')
+                    setShowEditor(true)
+
+                }).catch((error) => {
+                    console.error(error); 
+                    setErrorMsg(error.toString())
+
+                }).finally(() => setLoading(false))
+
+        }else{
+            setLoading(false)
+        }
         
-            // set article to doc
-        
-        // setShowEditor(true) && loading=false
-    }, [])
+    }, [location.state])
 
     //
     // save document
@@ -112,7 +131,7 @@ export default function EditPage() {
                     setSaveSuccessful(true); 
                     setTimeout(() => setSaveSuccessful(false), 3000)
                 })
-                .catch((err) => { console.error(err); setErrorMsg(err.toString())})   
+                .catch((error) => { console.error(error); setErrorMsg(error.toString())})   
                 .finally(() => setSavingDocument(false))
         }
         
@@ -121,13 +140,14 @@ export default function EditPage() {
     return (
     <main>
         <Alert variant='danger' show={errorMsg !== ''} dismissible>
-            <Alert.Heading>Error saving file</Alert.Heading>
+            <Alert.Heading>File error</Alert.Heading>
             <p className='alert-text'>{errorMsg}</p>
         </Alert>
         <div className='content'>
         
             <div className='editor-header'>
-                <Button onClick={toggleEditor}>{toggleButtonLabel}</Button>
+                {loading && <Spinner />}
+                {!loading && <Button onClick={toggleEditor}>{toggleButtonLabel}</Button>}
             </div>
             
             {showEditor && <ArticleEditor article={article} editorRef={editorRef} saveDocument={saveDocument} savingDocument={savingDocument} saveSuccessful={saveSuccessful} />}

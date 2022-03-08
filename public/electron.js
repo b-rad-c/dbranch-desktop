@@ -33,15 +33,22 @@ function createWindow() {
 const userDocumentsRoot = path.join(app.getPath('documents'), 'dBranch')
 
 function writeUserDocument(fileName, fileContents) {
-  console.log('* making dir:', userDocumentsRoot)
+  console.log('making dir: ', userDocumentsRoot)
   fs.mkdirSync(userDocumentsRoot, {recursive: true})
   const filePath = path.join(userDocumentsRoot, fileName)
-  console.log('* writing user document:', filePath)
+  console.log('writing user document: ', filePath)
   fs.writeFileSync(filePath, fileContents)
 }
 
 function listUserDocuments() {
+  console.log('listing user documents: ', userDocumentsRoot)
   return fs.readdirSync(userDocumentsRoot)
+}
+
+function readUserDocument(fileName) {
+  const filePath = path.join(userDocumentsRoot, fileName)
+  console.log('reading user document: ', filePath)
+  return fs.readFileSync(filePath, {encoding: 'utf8'})
 }
 
 
@@ -50,8 +57,9 @@ function listUserDocuments() {
 //
 
 app.whenReady().then(() => {
-  ipcMain.handle('write-user-document', (_, fileName, fileContents) => { writeUserDocument(fileName, fileContents) })
+  ipcMain.handle('write-user-document', (_, fileName, fileContents) => writeUserDocument(fileName, fileContents) )
   ipcMain.handle('list-user-documents', () => listUserDocuments())
+  ipcMain.handle('read-user-document', (_, name) => readUserDocument(name))
   createWindow()
   app.on('activate', () => {
       // osx behaviour, when activating app, open a window if none are open

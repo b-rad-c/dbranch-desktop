@@ -4,7 +4,6 @@ import { randomArticleTitle, randomArticleBody, randomArticleSubTitle, randomNam
 import ReactQuill from 'react-quill'
 import { Check2Circle } from 'react-bootstrap-icons'
 
-
 //
 // article
 //
@@ -15,12 +14,12 @@ export default function ArticleEditor(props) {
     const savingDocument = props.savingDocument
     const saveSuccessful = props.saveSuccessful
     const editorRef = props.editorRef
-    const [content, setContent] = useState(article.contents);
+    const contents = props.article.doc.contents
     
     return (
         <div className='article'>
             <ArticleEditorHeader article={article} savingDocument={savingDocument}/>
-            <ArticleEditorBody articleBody={{content, setContent, editorRef, saveDocument, savingDocument, saveSuccessful}} />
+            <ArticleEditorBody articleBody={{contents, editorRef, saveDocument, savingDocument, saveSuccessful}} />
         </div>
     );
 }
@@ -93,17 +92,18 @@ export function ArticleEditorHeader(props) {
 
 export function ArticleEditorBody(props) {
     const body = props.articleBody
+    const [quillValue, setQuillValue] = useState(body.contents)
 
     return (
         <div className='mt-2'>
-            <ReactQuill ref={body.editorRef} readOnly={body.savingDocument} theme="snow" value={body.content} onChange={body.setContent} placeholder='Type away!'/>
+            <ReactQuill ref={body.editorRef} readOnly={body.savingDocument} theme="snow" value={quillValue} onChange={setQuillValue} placeholder='Type away!'/>
             <Stack className='mt-2' direction='horizontal' gap={2}>
                 <Button onClick={body.saveDocument}>
                     { body.savingDocument && <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />}
                     { body.saveSuccessful && <Check2Circle />}
                     { !body.saveSuccessful && <span>Save</span>}
                 </Button>
-                <Button disabled={body.savingDocument} onClick={() => body.setContent(randomArticleBody())}>Random</Button>
+                <Button disabled={body.savingDocument} onClick={() => setQuillValue(randomArticleBody())}>Random</Button>
             </Stack>
         </div>
     );
