@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Button, Alert, Spinner } from 'react-bootstrap'
 import { useLocation } from 'react-router-dom'
 import Delta from 'quill-delta'
-//import { create } from 'ipfs-http-client'
+import { create } from 'ipfs-http-client'
 
 
 export class Article {
@@ -75,6 +75,11 @@ export default function EditPage(props) {
     const actionNormal = (name) => !actionIsRunning(name) && !actionWasSuccessful(name)
     const readOnly = runningAction !== null
     const toggleButtonLabel = showEditor ? 'Back' : 'New Article'
+    const makeArticle = () => {
+        const newArticle = Object.assign(new Article(), doc)
+        newArticle.contents = editorRef.current.getEditor().getContents()
+        return newArticle
+    }
 
     // helpers for child components
     const article = { doc, setDoc, updateDoc }
@@ -128,12 +133,10 @@ export default function EditPage(props) {
 
     useEffect(() => {
         if(actionIsRunning('save')) {
-            const newDoc = Object.assign(new Article(), doc)
-            console.log('saving user document: ' + newDoc.name)
-            
-            newDoc.contents = editorRef.current.getEditor().getContents()
+            const articleToSave = makeArticle()
+            console.log('saving user document: ' + articleToSave.name)
 
-            window.dBranch.writeUserDocument(newDoc.name, newDoc.toJSONString())
+            window.dBranch.writeUserDocument(articleToSave.name, articleToSave.toJSONString())
                 .then(() => {
                     console.log('user document saved')
                     setActionSuccessful('save'); 
@@ -150,11 +153,41 @@ export default function EditPage(props) {
 
     useEffect(() => {
         if(actionIsRunning('publish')) {
-            console.log('publishing: ' + doc.name)
-            // const client = create(props.settings.ipfsHost)
+            const articleToPublish = makeArticle()
+            const fileContents = articleToPublish.toJSONString()
+            console.log('publishing to ipfs: ' + articleToPublish.name)
+            console.log(fileContents)
+
+            //
             // add to ipfs
-            // add cid to MFS
-            // setTimeout(() => setRunningAction(false), 2000)
+            //
+
+            const ipfsClient = create(props.settings.ipfsHost)
+            ipfsClient.add(fileContents, {progress: (size) => console.log('progress in bytes:' + size)})
+                .then((result) => {
+                    console.log(result)
+                    const ipfsSrc = '/ipfs/' + result.cid
+                    const ipfsFilesDest = '/dBranch/published/' + articleToPublish.name
+                    console.log('copying: ' + ipfsSrc + ' to: ' + ipfsFilesDest)
+
+                    //
+                    // copy to mutable filesystem if successful
+                    //
+
+                    ipfsClient.files.cp(ipfsSrc, ipfsFilesDest, {parents: true, flush: true})
+                        .then(() => {
+                            setActionSuccessful('publish')
+                            setTimeout(() => setActionSuccessful(null), 3000)
+                        }).catch((error) => {
+                            console.error(error) 
+                            setErrorMsg(error.toString())
+                        })
+                    
+                }).catch((error) => {
+                    console.error(error) 
+                    setErrorMsg(error.toString())
+
+                }).finally(() => setRunningAction(null))
         }
         
     })
