@@ -28,7 +28,7 @@ export default function FilesPage(props) {
             <p className='inline-header'><strong>published :: </strong>0 {label}</p>
         </div>
         <div className='content'>
-            <p className='inline-header'><strong>draft :: </strong>{drafts.length} {label}</p>
+            <p className='inline-header'><strong>drafts :: </strong>{drafts.length} {label}</p>
             {drafts.length === 0 &&<span>no files found</span>}
             {loading && <Spinner />}
             <Container>

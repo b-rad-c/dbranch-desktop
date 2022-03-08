@@ -1,7 +1,6 @@
 import ArticleEditor from '../components/article'
 import { useState, useRef, useEffect } from 'react'
 import { Button, Alert } from 'react-bootstrap'
-import Delta from 'quill-delta'
 import { useLocation } from 'react-router-dom'
 
 
@@ -15,20 +14,25 @@ export class Article {
         this.contents = contents ? contents : ''
     }
 
-    makeDelta() {
-        const headerDelta = new Delta([
-            { insert: this.title },
-            { insert: '\n', attributes: { header: 1 } },
-            { insert: this.subTitle },
-            { insert: '\n', attributes: { header: 2 } },
-            { insert: this.author },
-            { insert: '\n', attributes: { header: 3 } },
-          ])
-        return headerDelta.concat(this.contents)
+    toJSON() {
+        return {
+            title: this.title,
+            sub_title: this.subTitle,
+            author: this.author,
+            contents: this.contents
+        }
     }
 
-    fileString() {
-        return JSON.stringify({article: this.makeDelta().ops})
+    toJSONString() {
+        return JSON.stringify(this.toJSON())
+    }
+
+    static fromJSON(data) {
+        return new Article(data.name, data.title, data.sub_title, data.author, data.contents)
+    }
+
+    static fromJSONString(jsonString) {
+        return Article.fromJSON(JSON.parse(jsonString))
     }
 }
 
@@ -42,6 +46,11 @@ function loadArticle(fileName) {
 
 
 export default function EditPage() {
+
+    //
+    // state and handlers
+    //
+
     const location = useLocation()
     console.log(location)
 
@@ -71,16 +80,24 @@ export default function EditPage() {
 
     const editorRef = useRef(null)
 
+    //
+    // (optionally) load document on first render
+    //
+
     useEffect(() => {
         // after initial load
         // if opening existing document:
             // set loading
             // loadArticle()
         
-        // set article to doc
+            // set article to doc
         
         // setShowEditor(true) && loading=false
     }, [])
+
+    //
+    // save document
+    //
 
     useEffect(() => {
         if(savingDocument) {
@@ -89,7 +106,7 @@ export default function EditPage() {
             
             newDoc.contents = editorRef.current.getEditor().getContents()
 
-            window.dBranch.writeUserDocument(newDoc.name, newDoc.fileString())
+            window.dBranch.writeUserDocument(newDoc.name, newDoc.toJSONString())
                 .then(() => {
                     console.log('user document saved')
                     setSaveSuccessful(true); 
