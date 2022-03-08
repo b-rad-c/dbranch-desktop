@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Button, Alert, Spinner } from 'react-bootstrap'
 import { useLocation } from 'react-router-dom'
 import Delta from 'quill-delta'
+//import { create } from 'ipfs-http-client'
 
 
 export class Article {
@@ -38,28 +39,27 @@ export class Article {
 }
 
 
-export default function EditPage() {
+export default function EditPage(props) {
 
     //
     // state and handlers
     //
 
     const location = useLocation()
+    const editorRef = useRef(null)
 
+    // state variables
     const [ loading, setLoading ] = useState(true)
     const [ showEditor, setShowEditor ] = useState(false)
-    const [ savingDocument, setSavingDocument ] = useState(false)
-    const saveDocument = () => setSavingDocument(true)
-
-    const [ saveSuccessful, setSaveSuccessful ] = useState(false)
-
-    const toggleEditor = () => setShowEditor(!showEditor)
-    const toggleButtonLabel = showEditor ? 'Back' : 'New Article'
-
+    const [ runningAction, setRunningAction ] = useState(null)
+    const [ actionSuccessful, setActionSuccessful ] = useState(null)
     const [ errorMsg, setErrorMsg ] = useState('')
 
     const defaultDoc = new Article() // instantiate to get default values
     const [ doc, setDoc ] = useState({...defaultDoc}) 
+
+    // updaters
+    const toggleEditor = () => setShowEditor(!showEditor)
 
     const updateDoc = (prop, value) => {
         setDoc(prevDoc => {
@@ -69,9 +69,17 @@ export default function EditPage() {
         })
     }
 
-    const article = { doc, setDoc, updateDoc }
-    const editorRef = useRef(null)
+    // dynamic values
+    const actionIsRunning = (name) => runningAction === name && actionSuccessful !== true
+    const actionWasSuccessful = (name) => actionSuccessful === name
+    const actionNormal = (name) => !actionIsRunning(name) && !actionWasSuccessful(name)
+    const readOnly = runningAction !== null
+    const toggleButtonLabel = showEditor ? 'Back' : 'New Article'
 
+    // helpers for child components
+    const article = { doc, setDoc, updateDoc }
+    const action = { runningAction, setRunningAction, actionIsRunning, actionWasSuccessful, actionNormal, readOnly }
+    
     //
     // (optionally) load document on first render
     //
@@ -115,11 +123,11 @@ export default function EditPage() {
     }, [location.state])
 
     //
-    // save document
+    // save document (as draft to local filesystem)
     //
 
     useEffect(() => {
-        if(savingDocument) {
+        if(actionIsRunning('save')) {
             const newDoc = Object.assign(new Article(), doc)
             console.log('saving user document: ' + newDoc.name)
             
@@ -128,14 +136,28 @@ export default function EditPage() {
             window.dBranch.writeUserDocument(newDoc.name, newDoc.toJSONString())
                 .then(() => {
                     console.log('user document saved')
-                    setSaveSuccessful(true); 
-                    setTimeout(() => setSaveSuccessful(false), 3000)
+                    setActionSuccessful('save'); 
+                    setTimeout(() => setActionSuccessful(null), 3000)
                 })
                 .catch((error) => { console.error(error); setErrorMsg(error.toString())})   
-                .finally(() => setSavingDocument(false))
+                .finally(() => setRunningAction(null))
+        }
+    })
+
+    //
+    // publish document (add to ipfs)
+    //
+
+    useEffect(() => {
+        if(actionIsRunning('publish')) {
+            console.log('publishing: ' + doc.name)
+            // const client = create(props.settings.ipfsHost)
+            // add to ipfs
+            // add cid to MFS
+            // setTimeout(() => setRunningAction(false), 2000)
         }
         
-    }, [savingDocument, doc])
+    })
 
     return (
     <main>
@@ -150,7 +172,7 @@ export default function EditPage() {
                 {!loading && <Button onClick={toggleEditor}>{toggleButtonLabel}</Button>}
             </div>
             
-            {showEditor && <ArticleEditor article={article} editorRef={editorRef} saveDocument={saveDocument} savingDocument={savingDocument} saveSuccessful={saveSuccessful} />}
+            {showEditor && <ArticleEditor article={article} editorRef={editorRef} action={action} />}
         </div>
     </main>
     );

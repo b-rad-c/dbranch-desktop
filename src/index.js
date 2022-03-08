@@ -87,7 +87,7 @@ function Root() {
     <Routes>
       <Route path='/' element={<App />}>
         <Route index element={<MainPage />} />
-        <Route path='edit' element={<EditPage />} />
+        <Route path='edit' element={<EditPage settings={settings} />} />
         <Route path='files' element={<FilesPage settings={settings} />} />
         <Route path='settings' element={<SettingsPage settings={settings} updateSetting={updateSetting} resetSettings={resetSettings} />} />
         <Route

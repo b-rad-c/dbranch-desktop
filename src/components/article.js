@@ -1,5 +1,5 @@
 import { Form, FormControl, InputGroup, Button, Stack, Row, Col, Spinner } from 'react-bootstrap'
-import React, { useState } from "react"
+import React, { useState } from 'react'
 import { randomArticleTitle, randomArticleBody, randomArticleSubTitle, randomName } from '../utilities/generators'
 import ReactQuill from 'react-quill'
 import { Check2Circle } from 'react-bootstrap-icons'
@@ -9,17 +9,10 @@ import { Check2Circle } from 'react-bootstrap-icons'
 //
 
 export default function ArticleEditor(props) {
-    const article = props.article
-    const saveDocument = props.saveDocument
-    const savingDocument = props.savingDocument
-    const saveSuccessful = props.saveSuccessful
-    const editorRef = props.editorRef
-    const contents = props.article.doc.contents
-    
     return (
         <div className='article'>
-            <ArticleEditorHeader article={article} savingDocument={savingDocument}/>
-            <ArticleEditorBody articleBody={{contents, editorRef, saveDocument, savingDocument, saveSuccessful}} />
+            <ArticleEditorHeader article={props.article} action={props.action} />
+            <ArticleEditorBody article={props.article} action={props.action} editorRef={props.editorRef}/>
         </div>
     );
 }
@@ -31,7 +24,7 @@ export default function ArticleEditor(props) {
 
 export function ArticleEditorHeader(props) {
     const article = props.article
-    const disabled = props.savingDocument
+    const disabled = props.action.readOnly
     const nameHandler = (e) => article.updateDoc('name', e.target.value)
 
     const titleHandler = (e) => article.updateDoc('title', e.target.value)
@@ -45,38 +38,38 @@ export function ArticleEditorHeader(props) {
 
     return (
     <Form className='article-header-form' style={{width: '70%'}}>
-        <Form.Group as={Row} className="mb-3">
+        <Form.Group as={Row} className='mb-3'>
             <Form.Label column sm={2}>document ::</Form.Label>
             <Col>
                 <FormControl disabled={disabled} type='string' placeholder='Enter filename...' value={article.doc.name} onChange={nameHandler} />
             </Col>
         </Form.Group>
             
-        <Form.Group as={Row} className="mb-3">
+        <Form.Group as={Row} className='mb-3'>
             <Form.Label column sm={2}>title ::</Form.Label>
             <Col>
-                <InputGroup className="mb-3">
-                    <Button disabled={disabled} variant="secondary" id="button-addon1" onClick={randomTitle}>Random</Button>
+                <InputGroup className='mb-3'>
+                    <Button disabled={disabled} variant='secondary' id='button-addon1' onClick={randomTitle}>Random</Button>
                     <FormControl disabled={disabled} type='string' placeholder='Enter title...' value={article.doc.title} onChange={titleHandler} />
                 </InputGroup>
             </Col>
         </Form.Group>
 
-        <Form.Group as={Row} className="mb-3">
+        <Form.Group as={Row} className='mb-3'>
             <Form.Label column sm={2}>subtitle ::</Form.Label>
             <Col>
-                <InputGroup className="mb-3">
-                    <Button disabled={disabled} variant="secondary" id="button-addon1" onClick={randomSubTitle}>Random</Button>
+                <InputGroup className='mb-3'>
+                    <Button disabled={disabled} variant='secondary' id='button-addon1' onClick={randomSubTitle}>Random</Button>
                     <FormControl disabled={disabled} as='textarea' placeholder='Enter subtitle...' style={{height: '65px'}} value={article.doc.subTitle} onChange={subTitleHandler}/>
                 </InputGroup>
             </Col>
         </Form.Group>
         
-        <Form.Group as={Row} className="mb-3">
+        <Form.Group as={Row} className='mb-3'>
             <Form.Label column sm={2}>author ::</Form.Label>
             <Col>
-                <InputGroup className="mb-3">
-                    <Button disabled={disabled} variant="secondary" id="button-addon1" onClick={randomAuthor}>Random</Button>
+                <InputGroup className='mb-3'>
+                    <Button disabled={disabled} variant='secondary' id='button-addon1' onClick={randomAuthor}>Random</Button>
                     <FormControl disabled={disabled} type='string' placeholder='Enter title...' value={article.doc.author} onChange={authorHandler} />
                 </InputGroup>
             </Col>
@@ -91,19 +84,37 @@ export function ArticleEditorHeader(props) {
 //
 
 export function ArticleEditorBody(props) {
-    const body = props.articleBody
-    const [quillValue, setQuillValue] = useState(body.contents)
+    const action = props.action
+
+    const [quillValue, setQuillValue] = useState(props.article.doc.contents)
+
+    const save = () => action.setRunningAction('save')
+    const publish = () => action.setRunningAction('publish')
+
+    const Spin = (<Spinner as='span' animation='border' size='sm' role='status' aria-hidden='true' />)
+
 
     return (
         <div className='mt-2'>
-            <ReactQuill ref={body.editorRef} readOnly={body.savingDocument} theme="snow" value={quillValue} onChange={setQuillValue} placeholder='Type away!'/>
+            <ReactQuill ref={props.editorRef} readOnly={action.readOnly} theme='snow' value={quillValue} onChange={setQuillValue} placeholder='Type away!'/>
             <Stack className='mt-2' direction='horizontal' gap={2}>
-                <Button onClick={body.saveDocument}>
-                    { body.savingDocument && <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />}
-                    { body.saveSuccessful && <Check2Circle />}
-                    { !body.saveSuccessful && <span>Save</span>}
+
+                {/* save button */}
+                <Button disabled={action.readOnly} onClick={save}>
+                    { action.actionIsRunning('save')        && Spin}
+                    { action.actionWasSuccessful('save')    && <Check2Circle />}
+                    { action.actionNormal('save')           && <span>Save</span>}
                 </Button>
-                <Button disabled={body.savingDocument} onClick={() => setQuillValue(randomArticleBody())}>Random</Button>
+
+                {/* publish button */}
+                <Button disabled={action.readOnly} onClick={publish}>
+                    { action.actionIsRunning('publish')     && Spin}
+                    { action.actionWasSuccessful('publish') && <Check2Circle />}
+                    { action.actionNormal('publish')        && <span>Publish</span>}
+                </Button>
+
+                {/* random article generator*/}
+                <Button disabled={action.readOnly} onClick={() => setQuillValue(randomArticleBody())}>Random</Button>
             </Stack>
         </div>
     );
