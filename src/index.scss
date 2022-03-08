@@ -49,7 +49,7 @@ h3{
 }
 
 p{
-    font-size: 1.25rem;
+    font-size: 1rem;
 }
 
 .bubble {
@@ -227,4 +227,20 @@ editor / article
 
 .article-header-form {
 
+}
+
+/*
+files
+*/ 
+
+.file-link {
+    font-size: 1.25rem;
+    text-decoration: none;
+    color: $dark;
+    font-weight: bold;
+}
+
+.file-link:hover {
+    text-decoration: underline;
+    color: $dark;
 }

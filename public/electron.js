@@ -40,6 +40,10 @@ function writeUserDocument(fileName, fileContents) {
   fs.writeFileSync(filePath, fileContents)
 }
 
+function listUserDocuments() {
+  return fs.readdirSync(userDocumentsRoot)
+}
+
 
 //
 // initialize app
@@ -47,6 +51,7 @@ function writeUserDocument(fileName, fileContents) {
 
 app.whenReady().then(() => {
   ipcMain.handle('write-user-document', (_, fileName, fileContents) => { writeUserDocument(fileName, fileContents) })
+  ipcMain.handle('list-user-documents', () => listUserDocuments())
   createWindow()
   app.on('activate', () => {
       // osx behaviour, when activating app, open a window if none are open

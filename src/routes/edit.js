@@ -1,7 +1,9 @@
 import ArticleEditor from '../components/article'
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react'
 import { Button, Alert } from 'react-bootstrap'
 import Delta from 'quill-delta'
+import { useLocation } from 'react-router-dom'
+
 
 export class Article {
     constructor(name, title, subTitle, author, contents) {
@@ -30,18 +32,24 @@ export class Article {
     }
 }
 
+function loadArticle(fileName) {
+    // window.dBranch.loadUserDocument(fileName)
+
+    // parse JSON contents of file
+
+    // return new Article(<parsed json data>)
+}
+
 
 export default function EditPage() {
-
-    //
-    // definitions
-    //
+    const location = useLocation()
+    console.log(location)
 
     const [ showEditor, setShowEditor ] = useState(false)
     const [ savingDocument, setSavingDocument ] = useState(false)
     const saveDocument = () => setSavingDocument(true)
 
-    const [ showSaveSuccessMsg, setShowSaveSuccessMsg ] = useState(false)
+    const [ saveSuccessful, setSaveSuccessful ] = useState(false)
 
     const toggleEditor = () => setShowEditor(!showEditor)
     const toggleButtonLabel = showEditor ? 'Back' : 'New Article'
@@ -61,18 +69,31 @@ export default function EditPage() {
 
     const article = { doc, setDoc, updateDoc }
 
-    const editorRef = useRef(null);
+    const editorRef = useRef(null)
+
+    useEffect(() => {
+        // after initial load
+        // if opening existing document:
+            // set loading
+            // loadArticle()
+        
+        // set article to doc
+        
+        // setShowEditor(true) && loading=false
+    }, [])
 
     useEffect(() => {
         if(savingDocument) {
             const newDoc = Object.assign(new Article(), doc)
+            console.log('saving user document: ' + newDoc.name)
+            
             newDoc.contents = editorRef.current.getEditor().getContents()
 
             window.dBranch.writeUserDocument(newDoc.name, newDoc.fileString())
                 .then(() => {
-                    console.log('file saved')
-                    setShowSaveSuccessMsg(true); 
-                    setTimeout(() => setShowSaveSuccessMsg(false), 3000)
+                    console.log('user document saved')
+                    setSaveSuccessful(true); 
+                    setTimeout(() => setSaveSuccessful(false), 3000)
                 })
                 .catch((err) => { console.error(err); setErrorMsg(err.toString())})   
                 .finally(() => setSavingDocument(false))
@@ -82,10 +103,6 @@ export default function EditPage() {
 
     return (
     <main>
-        <Alert variant='success' show={showSaveSuccessMsg} dismissible>
-            <Alert.Heading>File saved</Alert.Heading>
-            <p className='alert-text'>{doc.name}</p>
-        </Alert>
         <Alert variant='danger' show={errorMsg !== ''} dismissible>
             <Alert.Heading>Error saving file</Alert.Heading>
             <p className='alert-text'>{errorMsg}</p>
@@ -96,7 +113,7 @@ export default function EditPage() {
                 <Button onClick={toggleEditor}>{toggleButtonLabel}</Button>
             </div>
             
-            {showEditor && <ArticleEditor article={article} editorRef={editorRef} saveDocument={saveDocument} savingDocument={savingDocument} />}
+            {showEditor && <ArticleEditor article={article} editorRef={editorRef} saveDocument={saveDocument} savingDocument={savingDocument} saveSuccessful={saveSuccessful} />}
         </div>
     </main>
     );

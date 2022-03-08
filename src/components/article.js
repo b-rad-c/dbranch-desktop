@@ -2,6 +2,7 @@ import { Form, FormControl, InputGroup, Button, Stack, Row, Col, Spinner } from 
 import React, { useState } from "react"
 import { randomArticleTitle, randomArticleBody, randomArticleSubTitle, randomName } from '../utilities/generators'
 import ReactQuill from 'react-quill'
+import { Check2Circle } from 'react-bootstrap-icons'
 
 
 //
@@ -12,13 +13,14 @@ export default function ArticleEditor(props) {
     const article = props.article
     const saveDocument = props.saveDocument
     const savingDocument = props.savingDocument
+    const saveSuccessful = props.saveSuccessful
     const editorRef = props.editorRef
     const [content, setContent] = useState(article.contents);
     
     return (
         <div className='article'>
             <ArticleEditorHeader article={article} savingDocument={savingDocument}/>
-            <ArticleEditorBody articleBody={{content, setContent, editorRef, saveDocument, savingDocument}} />
+            <ArticleEditorBody articleBody={{content, setContent, editorRef, saveDocument, savingDocument, saveSuccessful}} />
         </div>
     );
 }
@@ -98,7 +100,8 @@ export function ArticleEditorBody(props) {
             <Stack className='mt-2' direction='horizontal' gap={2}>
                 <Button onClick={body.saveDocument}>
                     { body.savingDocument && <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />}
-                    <span>Save</span>
+                    { body.saveSuccessful && <Check2Circle />}
+                    { !body.saveSuccessful && <span>Save</span>}
                 </Button>
                 <Button disabled={body.savingDocument} onClick={() => body.setContent(randomArticleBody())}>Random</Button>
             </Stack>
