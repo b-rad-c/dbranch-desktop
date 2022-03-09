@@ -5,13 +5,12 @@ import { Link } from 'react-router-dom';
 import { create } from 'ipfs-http-client'
 
 
-
-
-
-
-
-
 export default function FilesPage(props) {
+
+    //
+    // state variables
+    //
+
     const settings = props.settings
     const [loading, setLoading] = useState(true)
     const [drafts, setDrafts] = useState([])
@@ -22,11 +21,15 @@ export default function FilesPage(props) {
         console.log('listing published documents...')
         const names = []
         const ipfsClient = create(settings.ipfsHost)
-        for await (const f of ipfsClient.files.ls('/dBranch/published')) {
+        for await (const f of ipfsClient.files.ls(settings.dBranchPublishedDir)) {
             names.push(f.name)
         }
         return names
     }
+
+    //
+    // load file data
+    //
 
     useEffect(() => {
         loadIPFSDocs()
@@ -60,26 +63,19 @@ export default function FilesPage(props) {
         </Alert>
         <div className='content'>
             <p className='inline-header'><strong>published :: </strong>{publishedDocs.length} {label}</p>
-            {publishedDocs.length === 0 &&<p>no files found</p>}
-            {loading && <Spinner />}
             <Container>
-                {   publishedDocs.map((publishedDoc, index) => {
-                        return (
-                            <Row key={index}>
-                                <Col>
-                                    {publishedDoc}
-                                </Col>
-                            </Row>
-                        )
-                    })
+                {publishedDocs.length === 0 && <p><b>no files found</b></p>}
+                {loading && <Spinner />}
+                { 
+                    publishedDocs.map((doc, index) => { return (<Row key={index}><Col><b>{doc}</b></Col></Row>)}) 
                 }
             </Container>
         </div>
         <div className='content'>
             <p className='inline-header'><strong>drafts :: </strong>{drafts.length} {label}</p>
-            {drafts.length === 0 &&<p>no files found</p>}
-            {loading && <Spinner />}
             <Container>
+                {drafts.length === 0 && <p><b>no files found</b></p>}
+                {loading && <Spinner />}
                 {   drafts.map((draft, index) => {
                         return (
                             <Row key={index}>
@@ -93,7 +89,6 @@ export default function FilesPage(props) {
                     })
                 }
             </Container>
-            
             
         </div>
     </main>

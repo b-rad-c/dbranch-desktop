@@ -45,9 +45,6 @@ export default function EditPage(props) {
     // state and handlers
     //
 
-    const location = useLocation()
-    const editorRef = useRef(null)
-
     // state variables
     const [ loading, setLoading ] = useState(true)
     const [ showEditor, setShowEditor ] = useState(false)
@@ -69,12 +66,16 @@ export default function EditPage(props) {
         })
     }
 
-    // dynamic values
+    // dynamic values + misc
     const actionIsRunning = (name) => runningAction === name && actionSuccessful !== true
     const actionWasSuccessful = (name) => actionSuccessful === name
     const actionNormal = (name) => !actionIsRunning(name) && !actionWasSuccessful(name)
     const readOnly = runningAction !== null
     const toggleButtonLabel = showEditor ? 'Back' : 'New Article'
+
+    const location = useLocation()
+    const editorRef = useRef(null)
+
     const makeArticle = () => {
         const newArticle = Object.assign(new Article(), doc)
         newArticle.contents = editorRef.current.getEditor().getContents()
@@ -89,6 +90,7 @@ export default function EditPage(props) {
     // (optionally) load document on first render
     //
 
+    // pass state.open='file.ext' when navigating to this page
     useEffect(() => {
         let openingDoc = false
         let docName = null
@@ -132,6 +134,7 @@ export default function EditPage(props) {
     //
 
     useEffect(() => {
+        let timeout = null
         if(actionIsRunning('save')) {
             const articleToSave = makeArticle()
             console.log('saving user document: ' + articleToSave.name)
@@ -140,11 +143,12 @@ export default function EditPage(props) {
                 .then(() => {
                     console.log('user document saved')
                     setActionSuccessful('save'); 
-                    setTimeout(() => setActionSuccessful(null), 3000)
+                    timeout = setTimeout(() => setActionSuccessful(null), 3000)
                 })
                 .catch((error) => { console.error(error); setErrorMsg(error.toString())})   
                 .finally(() => setRunningAction(null))
         }
+        return () => clearTimeout(timeout)
     })
 
     //
@@ -152,6 +156,7 @@ export default function EditPage(props) {
     //
 
     useEffect(() => {
+        let timeout = null
         if(actionIsRunning('publish')) {
             const articleToPublish = makeArticle()
             const fileContents = articleToPublish.toJSONString()
@@ -177,7 +182,7 @@ export default function EditPage(props) {
                     ipfsClient.files.cp(ipfsSrc, ipfsFilesDest, {parents: true, flush: true})
                         .then(() => {
                             setActionSuccessful('publish')
-                            setTimeout(() => setActionSuccessful(null), 3000)
+                            timeout = setTimeout(() => setActionSuccessful(null), 3000)
                         }).catch((error) => {
                             console.error(error) 
                             setErrorMsg(error.toString())
@@ -189,7 +194,7 @@ export default function EditPage(props) {
 
                 }).finally(() => setRunningAction(null))
         }
-        
+        return () => clearTimeout(timeout)
     })
 
     return (
