@@ -96,7 +96,9 @@ export function ArticleEditorBody(props) {
 
     return (
         <div className='mt-2'>
-            <ReactQuill ref={props.editorRef} readOnly={action.readOnly} theme='snow' value={quillValue} onChange={setQuillValue} placeholder='Type away!'/>
+            <ReactQuill ref={props.editorRef} readOnly={action.readOnly} theme='snow' value={quillValue} onChange={setQuillValue} placeholder='Type away!'>
+                <div className='article-editor-container'/>
+            </ReactQuill>
             <Stack className='mt-2' direction='horizontal' gap={2}>
 
                 {/* save button */}
