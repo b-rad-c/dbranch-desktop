@@ -27,6 +27,7 @@ export function ArticleEditorHeader(props) {
     const disabled = props.action.readOnly
     const nameHandler = (e) => article.updateDoc('name', e.target.value)
 
+    const typeHandler = (e) => article.updateDoc('type', e.target.value)
     const titleHandler = (e) => article.updateDoc('title', e.target.value)
     const randomTitle = () => article.updateDoc('title', randomArticleTitle())
 
@@ -42,6 +43,17 @@ export function ArticleEditorHeader(props) {
             <Form.Label column sm={2}>document ::</Form.Label>
             <Col>
                 <FormControl disabled={disabled} type='string' placeholder='Enter filename...' value={article.doc.name} onChange={nameHandler} />
+            </Col>
+        </Form.Group>
+
+        <Form.Group as={Row} className='mb-3'>
+            <Form.Label column sm={2}>type ::</Form.Label>
+            <Col>
+                <Form.Select value={article.doc.type} onChange={typeHandler}>
+                    <option value='news'>news</option>
+                    <option value='opinion'>opinion</option>
+                    <option value='satire'>satire</option>
+                </Form.Select>
             </Col>
         </Form.Group>
             
@@ -93,12 +105,14 @@ export function ArticleEditorBody(props) {
 
     const Spin = (<Spinner as='span' animation='border' size='sm' role='status' aria-hidden='true' />)
 
-
     return (
         <div className='mt-2'>
-            <ReactQuill ref={props.editorRef} readOnly={action.readOnly} theme='snow' value={quillValue} onChange={setQuillValue} placeholder='Type away!'>
-                <div className='article-editor-container'/>
-            </ReactQuill>
+            <div className='article-editor-container'>
+                <ReactQuill style={{height: '90%'}} ref={props.editorRef} readOnly={action.readOnly} theme='snow' value={quillValue} onChange={setQuillValue} placeholder='Type away!'>
+                
+                </ReactQuill>
+            </div>
+            
             <Stack className='mt-2' direction='horizontal' gap={2}>
 
                 {/* save button */}

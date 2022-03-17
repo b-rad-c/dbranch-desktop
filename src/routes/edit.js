@@ -7,8 +7,9 @@ import { create } from 'ipfs-http-client'
 
 
 export class Article {
-    constructor(name, title, subTitle, author, contents) {
+    constructor(name, type, title, subTitle, author, contents) {
         this.defaultName = 'Untitled article.news'
+        this.type = type ? type : 'news'
         this.name = name ? name : this.defaultName
         this.title = title ? title : 'Untitled Article'
         this.subTitle = subTitle ? subTitle : 'Enter subtitle here...'
@@ -19,6 +20,7 @@ export class Article {
     toJSON() {
         return {
             title: this.title,
+            type: this.type,
             subTitle: this.subTitle,
             author: this.author,
             contents: this.contents
@@ -30,7 +32,7 @@ export class Article {
     }
 
     static fromJSON(name, data) {
-        return new Article(name, data.title, data.subTitle, data.author, data.contents)
+        return new Article(name, data.type, data.title, data.subTitle, data.author, data.contents)
     }
 
     static fromJSONString(name, jsonString) {
@@ -108,6 +110,7 @@ export default function EditPage(props) {
                     
                     setDoc({
                         name: loadedDoc.name,
+                        type: loadedDoc.type,
                         title: loadedDoc.title,
                         subTitle: loadedDoc.subTitle,
                         author: loadedDoc.author,
