@@ -40,7 +40,6 @@ h3{
     font-size: 1.25rem;
     font-weight: bold;
     text-decoration: underline;
-    color: $white;
 }
 
 .inline-header {
@@ -62,13 +61,6 @@ p{
 .sm {
     margin: 0 auto;
     width: 65%;
-}
-
-.alt-content {
-    background-color: $dark;
-    color: $white;
-    width: 100%;
-    padding: 1rem;
 }
 
 .content {

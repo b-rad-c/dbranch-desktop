@@ -25,7 +25,7 @@ export default function ArticleEditor(props) {
 export function ArticleEditorHeader(props) {
     const article = props.article
     const disabled = props.action.readOnly
-    const nameHandler = (e) => article.updateDoc('name', e.target.value)
+    const nameHandler = (e) => article.setDocumentName(e.target.value)
 
     const typeHandler = (e) => article.updateDoc('type', e.target.value)
     const titleHandler = (e) => article.updateDoc('title', e.target.value)
@@ -42,7 +42,7 @@ export function ArticleEditorHeader(props) {
         <Form.Group as={Row} className='mb-3'>
             <Form.Label column sm={2}>document ::</Form.Label>
             <Col>
-                <FormControl disabled={disabled} type='string' placeholder='Enter filename...' value={article.doc.name} onChange={nameHandler} />
+                <FormControl disabled={disabled} type='string' placeholder='Enter filename...' value={article.documentName} onChange={nameHandler} />
             </Col>
         </Form.Group>
 
@@ -52,6 +52,9 @@ export function ArticleEditorHeader(props) {
                 <Form.Select value={article.doc.type} onChange={typeHandler}>
                     <option value='news'>news</option>
                     <option value='opinion'>opinion</option>
+                    <option value='review'>review</option>
+                    <option value='information'>information</option>
+                    <option value='context'>context</option>
                     <option value='satire'>satire</option>
                 </Form.Select>
             </Col>

@@ -4,41 +4,7 @@ import { Button, Alert, Spinner } from 'react-bootstrap'
 import { useLocation } from 'react-router-dom'
 import Delta from 'quill-delta'
 import { create } from 'ipfs-http-client'
-
-
-export class Article {
-    constructor(name, type, title, subTitle, author, contents) {
-        this.defaultName = 'Untitled article.news'
-        this.type = type ? type : 'news'
-        this.name = name ? name : this.defaultName
-        this.title = title ? title : 'Untitled Article'
-        this.subTitle = subTitle ? subTitle : 'Enter subtitle here...'
-        this.author = author ? author : 'John Doe'
-        this.contents = contents ? contents : ''
-    }
-
-    toJSON() {
-        return {
-            title: this.title,
-            type: this.type,
-            subTitle: this.subTitle,
-            author: this.author,
-            contents: this.contents
-        }
-    }
-
-    toJSONString() {
-        return JSON.stringify(this.toJSON())
-    }
-
-    static fromJSON(name, data) {
-        return new Article(name, data.type, data.title, data.subTitle, data.author, data.contents)
-    }
-
-    static fromJSONString(name, jsonString) {
-        return Article.fromJSON(name, JSON.parse(jsonString))
-    }
-}
+import { Article } from 'dbranch-core'
 
 
 export default function EditPage(props) {
@@ -53,6 +19,7 @@ export default function EditPage(props) {
     const [ runningAction, setRunningAction ] = useState(null)
     const [ actionSuccessful, setActionSuccessful ] = useState(null)
     const [ errorMsg, setErrorMsg ] = useState('')
+    const [ documentName, setDocumentName] = useState('Untitled article.news')
 
     const defaultDoc = new Article() // instantiate to get default values
     const [ doc, setDoc ] = useState({...defaultDoc}) 
@@ -85,7 +52,7 @@ export default function EditPage(props) {
     }
 
     // helpers for child components
-    const article = { doc, setDoc, updateDoc }
+    const article = { doc, setDoc, updateDoc, documentName, setDocumentName }
     const action = { runningAction, setRunningAction, actionIsRunning, actionWasSuccessful, actionNormal, readOnly }
     
     //
@@ -101,15 +68,15 @@ export default function EditPage(props) {
             if(typeof docName !== 'undefined') openingDoc = true
         }
         if(openingDoc) {
+            setDocumentName(docName)
             console.log('opening: ' + docName)
             window.dBranch.readUserDocument(docName)
                 .then((fileData) => {
                     console.log(fileData)
 
-                    const loadedDoc = Article.fromJSONString(docName, fileData)
+                    const loadedDoc = Article.fromJSONString(fileData)
                     
                     setDoc({
-                        name: loadedDoc.name,
                         type: loadedDoc.type,
                         title: loadedDoc.title,
                         subTitle: loadedDoc.subTitle,
@@ -140,9 +107,9 @@ export default function EditPage(props) {
         let timeout = null
         if(actionIsRunning('save')) {
             const articleToSave = makeArticle()
-            console.log('saving user document: ' + articleToSave.name)
+            console.log('saving user document: ' + documentName)
 
-            window.dBranch.writeUserDocument(articleToSave.name, articleToSave.toJSONString())
+            window.dBranch.writeUserDocument(documentName, articleToSave.toJSONString())
                 .then(() => {
                     console.log('user document saved')
                     setActionSuccessful('save'); 
@@ -163,7 +130,7 @@ export default function EditPage(props) {
         if(actionIsRunning('publish')) {
             const articleToPublish = makeArticle()
             const fileContents = articleToPublish.toJSONString()
-            console.log('publishing to ipfs: ' + articleToPublish.name)
+            console.log('publishing to ipfs: ' + documentName)
             console.log(fileContents)
 
             //
@@ -175,7 +142,7 @@ export default function EditPage(props) {
                 .then((result) => {
                     console.log(result)
                     const ipfsSrc = '/ipfs/' + result.cid
-                    const ipfsFilesDest = props.settings.dBranchPublishedDir + '/' + articleToPublish.name
+                    const ipfsFilesDest = props.settings.dBranchPublishedDir + '/' + documentName
                     console.log('copying: ' + ipfsSrc + ' to: ' + ipfsFilesDest)
 
                     //
