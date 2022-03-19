@@ -11,7 +11,7 @@ return (
         <p>
             To use this program you will need an IPFS node to connect to. 
             The easiest way to run one locally is to install <a href='https://docs.ipfs.io/install/ipfs-desktop/' onClick={openIPFSDesktop}>IPFS Desktop</a>.
-            Head to the <Link to='/settings'>settings</Link> tab to test your connection or adjust the address.
+            Head to the <Link to='/settings'>settings</Link> tab to test your connection or change the default address.
         </p>
     </div>
 </main>

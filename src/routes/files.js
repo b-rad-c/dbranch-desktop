@@ -3,6 +3,7 @@ import { Container, Row, Col, Spinner, Alert } from 'react-bootstrap'
 import { PencilSquare } from 'react-bootstrap-icons'
 import { Link } from 'react-router-dom';
 import { create } from 'ipfs-http-client'
+import ReaderModal from '../components/reader';
 
 
 export default function FilesPage(props) {
@@ -15,7 +16,22 @@ export default function FilesPage(props) {
     const [loading, setLoading] = useState(true)
     const [drafts, setDrafts] = useState([])
     const [publishedDocs, setPublishedDocs] = useState([])
-    const [errorMsg, setErrorMsg] = useState('')
+    const [ipfsErrorMsg, setIpfsErrorMsg] = useState('')
+    const [localErrorMsg, setLocalErrorMsg] = useState('')
+    const [showReader, setShowReader] = useState(false);
+    const [selectedArticle, setSelectedArticle] = useState(null);
+
+    const openArticle = (e, name) => {
+        setSelectedArticle(name)
+        setShowReader(true)
+        e.preventDefault()
+    }
+
+    const closeArticle = () => {
+        setSelectedArticle(null)
+        setShowReader(false)
+    }
+
 
     async function loadIPFSDocs() {
         console.log('listing published documents...')
@@ -36,7 +52,10 @@ export default function FilesPage(props) {
             .then((result) => {
                 console.log('ipfs files', result)
                 setPublishedDocs(result)
-            })
+            }).catch((error) => {
+                console.error(error) 
+                setIpfsErrorMsg(error.toString())
+            }).finally(() => setLoading(false))
     // eslint-disable-next-line
     }, [])
 
@@ -49,33 +68,38 @@ export default function FilesPage(props) {
                 setDrafts(docs)
             }).catch((error) => {
                 console.error(error) 
-                setErrorMsg(error.toString())
-            }).finally(() => setLoading(false))
+                setLocalErrorMsg(error.toString())
+            })
     }, [])
 
 
     const label = 'files'
     return (
     <main>
-        <Alert variant='danger' show={errorMsg !== ''} dismissible>
-            <Alert.Heading>Error</Alert.Heading>
-            <p className='alert-text'>{errorMsg}</p>
+        <Alert variant='danger' show={ipfsErrorMsg !== ''} onClose={() => setIpfsErrorMsg('')} dismissible>
+            <Alert.Heading>Error loading published files</Alert.Heading>
+            <p className='alert-text'>{ipfsErrorMsg}</p>
         </Alert>
+        <Alert variant='danger' show={localErrorMsg !== ''} onClose={() => setLocalErrorMsg('')} dismissible>
+            <Alert.Heading>Error loading drafts</Alert.Heading>
+            <p className='alert-text'>{localErrorMsg}</p>
+        </Alert>
+        <ReaderModal show={showReader} closeArticle={closeArticle} loadArticle={selectedArticle} settings={settings} />
         <div className='content'>
             <p className='inline-header'><strong>published :: </strong>{publishedDocs.length} {label}</p>
             <Container>
                 {publishedDocs.length === 0 && <p><b>no files found</b></p>}
                 {loading && <Spinner />}
                 { 
-                    publishedDocs.map((doc, index) => { return (<Row key={index}><Col><b>{doc}</b></Col></Row>)}) 
+                    publishedDocs.map((doc, index) => { return (<Row key={index}><Col>
+                        <a href={doc} className='file-link' onClick={(e) => openArticle(e, doc)}>{doc}</a>
+                    </Col></Row>)}) 
                 }
             </Container>
-        </div>
-        <div className='content'>
-            <p className='inline-header'><strong>drafts :: </strong>{drafts.length} {label}</p>
+
+            <p className='inline-header mt-4'><strong>drafts :: </strong>{drafts.length} {label}</p>
             <Container>
                 {drafts.length === 0 && <p><b>no files found</b></p>}
-                {loading && <Spinner />}
                 {   drafts.map((draft, index) => {
                         return (
                             <Row key={index}>
@@ -89,7 +113,6 @@ export default function FilesPage(props) {
                     })
                 }
             </Container>
-            
         </div>
     </main>
     );
