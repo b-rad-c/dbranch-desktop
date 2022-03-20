@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import ReactQuill from 'react-quill'
-import { ArticleReaderModal } from './reader'
+import { ArticleReaderModal } from 'dbranch-core'
 import { Check2Circle } from 'react-bootstrap-icons'
 import { Form, FormControl, InputGroup, Button, Stack, Row, Col, Spinner } from 'react-bootstrap'
 import { randomArticleTitle, randomArticleBody, randomArticleSubTitle, randomName } from '../utilities/generators'

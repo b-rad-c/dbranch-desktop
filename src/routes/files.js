@@ -1,11 +1,13 @@
-import { ArticleReaderModal } from '../components/reader';
 import { useState, useEffect } from 'react'
 import { Container, Row, Col, Spinner, Alert } from 'react-bootstrap'
 import { PencilSquare } from 'react-bootstrap-icons'
 import { Link } from 'react-router-dom';
 import { create } from 'ipfs-http-client'
-import { Article } from 'dbranch-core'
+import { Article, ArticleReaderModal } from 'dbranch-core'
 
+require('react-dom');
+window.React2 = require('react');
+console.log('*** DUPE TEST desktop', window.React1 === window.React2)
 
 export default function FilesPage(props) {
 
@@ -99,7 +101,8 @@ export default function FilesPage(props) {
                     setIpfsErrorMsg(error.toString())
                 })
         }
-
+    
+        // eslint-disable-next-line
     }, [selectedArticleName])
 
 
