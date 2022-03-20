@@ -1,8 +1,10 @@
-import { Form, FormControl, InputGroup, Button, Stack, Row, Col, Spinner } from 'react-bootstrap'
 import React, { useState } from 'react'
-import { randomArticleTitle, randomArticleBody, randomArticleSubTitle, randomName } from '../utilities/generators'
 import ReactQuill from 'react-quill'
+import { ArticleReaderModal } from './reader'
 import { Check2Circle } from 'react-bootstrap-icons'
+import { Form, FormControl, InputGroup, Button, Stack, Row, Col, Spinner } from 'react-bootstrap'
+import { randomArticleTitle, randomArticleBody, randomArticleSubTitle, randomName } from '../utilities/generators'
+
 
 //
 // article
@@ -102,27 +104,45 @@ export function ArticleEditorHeader(props) {
 
 export function ArticleEditorBody(props) {
     const action = props.action
-
     const [quillValue, setQuillValue] = useState(props.article.doc.contents)
+    const [showPreview, setShowPreview] = useState(false)
+    const [articlePreview, setArticlePreview] = useState(null)
 
     const save = () => action.setRunningAction('save')
     const publish = () => action.setRunningAction('publish')
+
+    const openArticle = () => { setArticlePreview(props.article.makeArticle()); setShowPreview(true) }
 
     const Spin = (<Spinner as='span' animation='border' size='sm' role='status' aria-hidden='true' />)
 
     return (
         <div className='mt-2'>
+
+            { /* article preview modal */}
+
+            <ArticleReaderModal 
+                show=           {showPreview} 
+                closeArticle=   {() => { setShowPreview(false) } }
+                onExited=       {() => { setArticlePreview(null) }}
+                modalTitle=     {props.article.documentName} 
+                article=        {articlePreview} 
+                />
+
+            { /* actual editing canvas */}
+
             <div className='article-editor-container'>
                 <ReactQuill 
-                    ref={props.editorRef} 
-                    style={{height: '90%'}} 
-                    readOnly={action.readOnly} 
-                    theme='snow' 
-                    value={quillValue} 
-                    onChange={setQuillValue} 
-                    placeholder='Type away!' 
+                    ref=           {props.editorRef} 
+                    style=         {{height: '90%'}} 
+                    readOnly=      {action.readOnly} 
+                    theme=         'snow' 
+                    value=         {quillValue} 
+                    onChange=      {setQuillValue} 
+                    placeholder=   'Type away!' 
                     />
             </div>
+
+            { /* button stack */}
             
             <Stack className='mt-2' direction='horizontal' gap={2}>
 
@@ -133,6 +153,9 @@ export function ArticleEditorBody(props) {
                     { action.actionNormal('save')           && <span>Save</span>}
                 </Button>
 
+                {/* preview button */}
+                <Button disabled={action.readOnly} onClick={openArticle}>Preview</Button>
+                
                 {/* publish button */}
                 <Button disabled={action.readOnly} onClick={publish}>
                     { action.actionIsRunning('publish')     && Spin}

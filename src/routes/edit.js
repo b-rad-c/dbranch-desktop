@@ -1,4 +1,4 @@
-import ArticleEditor from '../components/article'
+import ArticleEditor from '../components/editor'
 import { useState, useRef, useEffect } from 'react'
 import { Button, Alert, Spinner } from 'react-bootstrap'
 import { useLocation } from 'react-router-dom'
@@ -52,7 +52,7 @@ export default function EditPage(props) {
     }
 
     // helpers for child components
-    const article = { doc, setDoc, updateDoc, documentName, setDocumentName }
+    const article = { doc, setDoc, updateDoc, documentName, setDocumentName, makeArticle }
     const action = { runningAction, setRunningAction, actionIsRunning, actionWasSuccessful, actionNormal, readOnly }
     
     //

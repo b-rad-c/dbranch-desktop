@@ -1,9 +1,10 @@
+import { ArticleReaderModal } from '../components/reader';
 import { useState, useEffect } from 'react'
 import { Container, Row, Col, Spinner, Alert } from 'react-bootstrap'
 import { PencilSquare } from 'react-bootstrap-icons'
 import { Link } from 'react-router-dom';
 import { create } from 'ipfs-http-client'
-import ReaderModal from '../components/reader';
+import { Article } from 'dbranch-core'
 
 
 export default function FilesPage(props) {
@@ -13,25 +14,21 @@ export default function FilesPage(props) {
     //
 
     const settings = props.settings
+
     const [loading, setLoading] = useState(true)
     const [drafts, setDrafts] = useState([])
     const [publishedDocs, setPublishedDocs] = useState([])
     const [ipfsErrorMsg, setIpfsErrorMsg] = useState('')
     const [localErrorMsg, setLocalErrorMsg] = useState('')
-    const [showReader, setShowReader] = useState(false);
-    const [selectedArticle, setSelectedArticle] = useState(null);
 
-    const openArticle = (e, name) => {
-        setSelectedArticle(name)
-        setShowReader(true)
-        e.preventDefault()
-    }
+    const [selectedArticleName, setSelectedArticleName] = useState(null)
+    const [selectedArticle, setSelectedArticle] = useState(null)
+    const [showArticle, setShowArticle] = useState(false)
 
-    const closeArticle = () => {
-        setSelectedArticle(null)
-        setShowReader(false)
-    }
 
+    //
+    // load file listings (run automatically on first render)
+    //
 
     async function loadIPFSDocs() {
         console.log('listing published documents...')
@@ -42,10 +39,6 @@ export default function FilesPage(props) {
         }
         return names
     }
-
-    //
-    // load file data
-    //
 
     useEffect(() => {
         loadIPFSDocs()
@@ -73,9 +66,49 @@ export default function FilesPage(props) {
     }, [])
 
 
+    //
+    // open an article from ipfs 
+    //
+
+    const openArticle = (e, name) => { setSelectedArticleName(name); e.preventDefault() }
+    const closeArticle = () => { setShowArticle(false) }
+    const cleanUpArticle = () => { setSelectedArticleName(null); setSelectedArticle(null) }
+
+    async function loadIPFSFile(path) {
+        const ipfsClient = create(props.settings.ipfsHost)
+        
+        let result = ''
+        let utf8decoder = new TextDecoder();
+        for await (const chunk of ipfsClient.files.read(path)) {
+            result += utf8decoder.decode(chunk)
+        }
+        return result
+    }
+
+    useEffect(() => {
+        if(selectedArticleName !== null) {
+            const path = window.dBranch.joinPath(props.settings.dBranchPublishedDir, selectedArticleName)
+            console.log('loading from ipfs: ' + path)
+            loadIPFSFile(path)
+                .then((result) => {
+                    console.log('article loaded successfully')
+                    setSelectedArticle(Article.fromJSONString(result))
+                    setShowArticle(true)
+                }).catch((error) => {
+                    console.error(error)
+                    setIpfsErrorMsg(error.toString())
+                })
+        }
+
+    }, [selectedArticleName])
+
+
     const label = 'files'
     return (
     <main>
+
+        {/* error messages */}
+
         <Alert variant='danger' show={ipfsErrorMsg !== ''} onClose={() => setIpfsErrorMsg('')} dismissible>
             <Alert.Heading>Error loading published files</Alert.Heading>
             <p className='alert-text'>{ipfsErrorMsg}</p>
@@ -84,7 +117,23 @@ export default function FilesPage(props) {
             <Alert.Heading>Error loading drafts</Alert.Heading>
             <p className='alert-text'>{localErrorMsg}</p>
         </Alert>
-        <ReaderModal show={showReader} closeArticle={closeArticle} loadArticle={selectedArticle} settings={settings} />
+        <Alert variant='danger' show={ipfsErrorMsg !== ''} onClose={() => setIpfsErrorMsg('')} dismissible>
+            <Alert.Heading>Error loading article</Alert.Heading>
+            <p className='alert-text'>{ipfsErrorMsg}</p>
+        </Alert>
+
+        {/* article reader modal */}
+
+        <ArticleReaderModal 
+            show={showArticle} 
+            closeArticle={closeArticle} 
+            onExited={cleanUpArticle}
+            modalTitle={selectedArticleName} 
+            article={selectedArticle} 
+            />
+
+        {/* list published ipfs files */}
+
         <div className='content'>
             <p className='inline-header'><strong>published :: </strong>{publishedDocs.length} {label}</p>
             <Container>
@@ -96,6 +145,8 @@ export default function FilesPage(props) {
                     </Col></Row>)}) 
                 }
             </Container>
+
+            {/* list local drafts */}
 
             <p className='inline-header mt-4'><strong>drafts :: </strong>{drafts.length} {label}</p>
             <Container>
