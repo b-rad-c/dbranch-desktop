@@ -5,9 +5,6 @@ import { Link } from 'react-router-dom';
 import { create } from 'ipfs-http-client'
 import { Article, ArticleReaderModal } from 'dbranch-core'
 
-require('react-dom');
-window.React2 = require('react');
-console.log('*** DUPE TEST desktop', window.React1 === window.React2)
 
 export default function FilesPage(props) {
 
