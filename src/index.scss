@@ -4,6 +4,8 @@ $secondary: rgba(125, 125, 125, .1);
 $light: rgba(224, 224, 224, 1);
 $dark: rgba(20, 20, 20, 1);
 
+$primaryFont: 'Courier New', Courier, monospace;
+
 @import "~bootstrap/scss/bootstrap";
 
 /*
@@ -13,7 +15,7 @@ globals
 body {
     margin: 0;
     padding: 1%;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: $primaryFont;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: left;
@@ -186,38 +188,18 @@ $headerHeight: 42px;
 }
 
 /*
-editor / article
+article editor
 */
 
-.editor-header {
+.article-editor {
+
+}
+
+.article-editor-toolbar {
     width: 66%;
 }
 
-.editor-document-name {
-    margin-top: 1rem;;
-    padding: .5rem;
-    position: relative;
-    left: -.5rem;
-    border-radius: 10px;
-    width: 100%;
-}
-
-.editor-document-name-closed:hover {
-    background-color: $white;
-}
-
-.article {
-
-}
-
-/* article header */
-.article-header {
-    margin-top: 1rem;;
-    padding: .5rem;
-    border-radius: 10px;
-}
-
-.article-header-form {
+.article-editor-header {
 
 }
 
@@ -225,8 +207,47 @@ editor / article
     height: 450px;
 }
 
-.reader-modal {
-    width: 90%;
+.ql-editor {
+    font-family: $primaryFont;
+}
+
+.ql-editor h3 {
+    text-decoration: none;
+}
+
+/*
+article reader
+*/
+
+.article-reader-modal {
+    max-width: 85%;
+}
+
+.article-reader-container {
+    
+}
+
+.article-reader-header {
+    width: 80%;
+    margin: 0 auto;
+}
+
+.article-reader-title {
+    font-size: 3rem;
+}
+
+.article-reader-subtitle {
+    font-size: 1.25rem;
+}
+
+.article-reader-by-line {
+    border-bottom-style: solid;
+    border-bottom-color: $primary;
+    border-bottom-width: .1rem;
+}
+
+.article-reader-body {
+    font-family: $primaryFont;
 }
 
 /*

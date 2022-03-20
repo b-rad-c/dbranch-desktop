@@ -142,7 +142,7 @@ export default function EditPage(props) {
                 .then((result) => {
                     console.log(result)
                     const ipfsSrc = '/ipfs/' + result.cid
-                    const ipfsFilesDest = props.settings.dBranchPublishedDir + '/' + documentName
+                    const ipfsFilesDest = window.dBranch.joinPath(props.settings.dBranchPublishedDir, documentName)
                     console.log('copying: ' + ipfsSrc + ' to: ' + ipfsFilesDest)
 
                     //
@@ -175,8 +175,8 @@ export default function EditPage(props) {
         </Alert>
         <div className='content'>
         
-            <div className='editor-header'>
-                {loading && <Spinner />}
+            <div className='article-editor-toolbar'>
+                {loading && <Spinner animation='border' role='status' />}
                 {!loading && <Button onClick={toggleEditor}>{toggleButtonLabel}</Button>}
             </div>
             

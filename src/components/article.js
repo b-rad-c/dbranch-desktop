@@ -10,7 +10,7 @@ import { Check2Circle } from 'react-bootstrap-icons'
 
 export default function ArticleEditor(props) {
     return (
-        <div className='article'>
+        <div className='article-editor'>
             <ArticleEditorHeader article={props.article} action={props.action} />
             <ArticleEditorBody article={props.article} action={props.action} editorRef={props.editorRef}/>
         </div>
@@ -38,7 +38,7 @@ export function ArticleEditorHeader(props) {
     const randomAuthor = () => article.updateDoc('author', randomName())
 
     return (
-    <Form className='article-header-form' style={{width: '70%'}}>
+    <Form className='article-editor-header' style={{width: '70%'}}>
         <Form.Group as={Row} className='mb-3'>
             <Form.Label column sm={2}>document ::</Form.Label>
             <Col>
@@ -55,6 +55,8 @@ export function ArticleEditorHeader(props) {
                     <option value='review'>review</option>
                     <option value='information'>information</option>
                     <option value='context'>context</option>
+                    <option value='question'>question</option>
+                    <option value='answer'>answer</option>
                     <option value='satire'>satire</option>
                 </Form.Select>
             </Col>
@@ -111,9 +113,15 @@ export function ArticleEditorBody(props) {
     return (
         <div className='mt-2'>
             <div className='article-editor-container'>
-                <ReactQuill style={{height: '90%'}} ref={props.editorRef} readOnly={action.readOnly} theme='snow' value={quillValue} onChange={setQuillValue} placeholder='Type away!'>
-                
-                </ReactQuill>
+                <ReactQuill 
+                    ref={props.editorRef} 
+                    style={{height: '90%'}} 
+                    readOnly={action.readOnly} 
+                    theme='snow' 
+                    value={quillValue} 
+                    onChange={setQuillValue} 
+                    placeholder='Type away!' 
+                    />
             </div>
             
             <Stack className='mt-2' direction='horizontal' gap={2}>
