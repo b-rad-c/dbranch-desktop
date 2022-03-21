@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Button, Form, Row, Col, InputGroup, Alert } from 'react-bootstrap'
-import { create } from 'ipfs-http-client'
+import { testIPFSConnection } from 'dbranch-core'
 
 export default function SettingsPage(props) {
 
@@ -12,9 +12,8 @@ export default function SettingsPage(props) {
     const defaultTestResult = {msg: null, variant: null}
     const [ testResult, setTestResult ] = useState(defaultTestResult)
 
-    const testIPFSConnection = () => { 
-        const client = create(settings.ipfsHost)
-        client.version()
+    const pingIPFS = () => { 
+        testIPFSConnection(settings.ipfsHost)
             .then((response) => {
                 setTestResult({msg: 'version: ' + response.version, variant: 'success'})
             }).catch((error) => {
@@ -25,9 +24,9 @@ export default function SettingsPage(props) {
 
     return (
     <main>
-        <Alert variant={testResult.variant} show={testResult.msg} dismissible>
+        <Alert variant={testResult.variant} show={testResult.msg} dismissible transition={false}>
             <Alert.Heading>Testing IPFS connection</Alert.Heading>
-            <p className='alert-text'>host: {settings.ipfsHost}<br />result: {testResult.msg}</p>
+            <p className='alert-text'>host: {settings.ipfsHost}<br />result: {testResult?.msg}</p>
         </Alert>
         
         <Form className='content' style={{width: '70%'}}>
@@ -38,7 +37,7 @@ export default function SettingsPage(props) {
                 
                 <Col>
                     <InputGroup>
-                        <Button variant='secondary' onClick={testIPFSConnection}>Test</Button>
+                        <Button variant='secondary' onClick={pingIPFS}>Test</Button>
                         <Form.Control type='string' value={settings.ipfsHost} onChange={ipfsHostHandler} />
                     </InputGroup>
                 </Col>

@@ -3,7 +3,7 @@ import { Container, Row, Col, Spinner, Alert } from 'react-bootstrap'
 import { PencilSquare } from 'react-bootstrap-icons'
 import { Link } from 'react-router-dom';
 import { create } from 'ipfs-http-client'
-import { Article, ArticleReaderModal } from 'dbranch-core'
+import { ArticleReaderModal, loadArticleFromIPFS } from 'dbranch-core'
 
 
 export default function FilesPage(props) {
@@ -73,25 +73,15 @@ export default function FilesPage(props) {
     const closeArticle = () => { setShowArticle(false) }
     const cleanUpArticle = () => { setSelectedArticleName(null); setSelectedArticle(null) }
 
-    async function loadIPFSFile(path) {
-        const ipfsClient = create(props.settings.ipfsHost)
-        
-        let result = ''
-        let utf8decoder = new TextDecoder();
-        for await (const chunk of ipfsClient.files.read(path)) {
-            result += utf8decoder.decode(chunk)
-        }
-        return result
-    }
-
     useEffect(() => {
         if(selectedArticleName !== null) {
             const path = window.dBranch.joinPath(props.settings.dBranchPublishedDir, selectedArticleName)
             console.log('loading from ipfs: ' + path)
-            loadIPFSFile(path)
+            
+            loadArticleFromIPFS(create(props.settings.ipfsHost), path)
                 .then((result) => {
-                    console.log('article loaded successfully')
-                    setSelectedArticle(Article.fromJSONString(result))
+                    console.log('article loaded successfully', result)
+                    setSelectedArticle(result)
                     setShowArticle(true)
                 }).catch((error) => {
                     console.error(error)
