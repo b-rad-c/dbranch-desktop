@@ -209,6 +209,7 @@ article editor
 
 .ql-editor {
     font-family: $primaryFont;
+    padding: 0px;
 }
 
 .ql-editor h3 {
@@ -220,7 +221,7 @@ article reader
 */
 
 .article-reader-modal {
-    max-width: 85%;
+    max-width: 70%;
 }
 
 .article-reader-container {
@@ -228,7 +229,6 @@ article reader
 }
 
 .article-reader-header {
-    width: 80%;
     margin: 0 auto;
 }
 
@@ -248,7 +248,14 @@ article reader
 
 .article-reader-body {
     font-family: $primaryFont;
+    position: relative;
+    top: -1rem;
 }
+
+.article-reader-body h1, .article-reader-body h2, .article-reader-body h3 {
+    margin-top: 1rem;
+}
+
 
 /*
 files

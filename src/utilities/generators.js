@@ -43,7 +43,7 @@ export function randomArticleSubTitle() {
 }
 
 
-export function randomArticleBody() {
+export function randomParagraph() {
     return loremIpsum({
         count: 1,
         paragraphLowerBound: 3,
@@ -52,4 +52,14 @@ export function randomArticleBody() {
         sentenceUpperBound: 15,
         units: 'paragraphs',
       })
+}
+
+
+export function randomWords() {
+    return loremIpsum({
+        sentenceLowerBound: 2,
+        sentenceUpperBound: 8,
+        suffix: '',
+        units: 'sentences'
+      }).replace('.', '')
 }

@@ -3,7 +3,7 @@ import ReactQuill from 'react-quill'
 import { ArticleReaderModal } from 'dbranch-core'
 import { Check2Circle } from 'react-bootstrap-icons'
 import { Form, FormControl, InputGroup, Button, Stack, Row, Col, Spinner } from 'react-bootstrap'
-import { randomArticleTitle, randomArticleBody, randomArticleSubTitle, randomName } from '../utilities/generators'
+import { randomArticleTitle, randomParagraph, randomArticleSubTitle, randomName, randomWords } from '../utilities/generators'
 
 
 //
@@ -107,9 +107,24 @@ export function ArticleEditorBody(props) {
     const [quillValue, setQuillValue] = useState(props.article.doc.contents)
     const [showPreview, setShowPreview] = useState(false)
     const [articlePreview, setArticlePreview] = useState(null)
+    const [showCopyConfirmation, setShowCopyConfirmation] = useState(false)
+
+    const randomButtonLabel = showCopyConfirmation ? 'copied!' : 'random generators :: '
 
     const save = () => action.setRunningAction('save')
     const publish = () => action.setRunningAction('publish')
+
+    const copyParagraph = () => {
+        window.dBranch.copyText(randomParagraph())
+        setShowCopyConfirmation(true)
+        setTimeout(() => setShowCopyConfirmation(false), 2500)
+    }
+
+    const copyWords = () => {
+        window.dBranch.copyText(randomWords())
+        setShowCopyConfirmation(true)
+        setTimeout(() => setShowCopyConfirmation(false), 2500)
+    }
 
     const openArticle = () => { setArticlePreview(props.article.makeArticle()); setShowPreview(true) }
 
@@ -155,16 +170,23 @@ export function ArticleEditorBody(props) {
 
                 {/* preview button */}
                 <Button disabled={action.readOnly} onClick={openArticle}>Preview</Button>
-                
+
+                <div className="vr" />
+
                 {/* publish button */}
                 <Button disabled={action.readOnly} onClick={publish}>
                     { action.actionIsRunning('publish')     && Spin}
                     { action.actionWasSuccessful('publish') && <Check2Circle />}
                     { action.actionNormal('publish')        && <span>Publish</span>}
-                </Button>
+                </Button>                
+                
+                {/* random generators*/}
+                <div className='ms-auto'>{randomButtonLabel}</div>
+                
+                <Button disabled={action.readOnly} onClick={copyParagraph}>Paragraph</Button>
 
-                {/* random article generator*/}
-                <Button disabled={action.readOnly} onClick={() => setQuillValue(randomArticleBody())}>Random</Button>
+                <Button disabled={action.readOnly} onClick={copyWords}>Words</Button>
+
             </Stack>
         </div>
     );
