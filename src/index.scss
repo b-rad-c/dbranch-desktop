@@ -259,7 +259,6 @@ article reader
     margin-top: 1rem;
 }
 
-
 /*
 files
 */ 
@@ -274,4 +273,13 @@ files
 .file-link:hover {
     text-decoration: underline;
     color: $dark;
+}
+
+/*
+files 
+*/ 
+
+.published-file-send-icon:hover {
+    color: $white;
+    cursor: pointer;
 }

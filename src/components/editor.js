@@ -39,16 +39,18 @@ export function ArticleEditorHeader(props) {
     const authorHandler = (e) => article.updateDoc('author', e.target.value)
     const randomAuthor = () => article.updateDoc('author', randomName())
 
+    const rowClass = 'mb-3 text-end'
+
     return (
     <Form className='article-editor-header' style={{width: '70%'}}>
-        <Form.Group as={Row} className='mb-3'>
+        <Form.Group as={Row} className={rowClass}>
             <Form.Label column sm={2}>document ::</Form.Label>
             <Col>
                 <FormControl disabled={disabled} type='string' placeholder='Enter filename...' value={article.documentName} onChange={nameHandler} />
             </Col>
         </Form.Group>
 
-        <Form.Group as={Row} className='mb-3'>
+        <Form.Group as={Row} className={rowClass}>
             <Form.Label column sm={2}>type ::</Form.Label>
             <Col>
                 <Form.Select value={article.doc.type} onChange={typeHandler}>
@@ -64,7 +66,7 @@ export function ArticleEditorHeader(props) {
             </Col>
         </Form.Group>
             
-        <Form.Group as={Row} className='mb-3'>
+        <Form.Group as={Row} className={rowClass}>
             <Form.Label column sm={2}>title ::</Form.Label>
             <Col>
                 <InputGroup className='mb-3'>
@@ -74,7 +76,7 @@ export function ArticleEditorHeader(props) {
             </Col>
         </Form.Group>
 
-        <Form.Group as={Row} className='mb-3'>
+        <Form.Group as={Row} className={rowClass}>
             <Form.Label column sm={2}>subtitle ::</Form.Label>
             <Col>
                 <InputGroup className='mb-3'>
@@ -84,7 +86,7 @@ export function ArticleEditorHeader(props) {
             </Col>
         </Form.Group>
         
-        <Form.Group as={Row} className='mb-3'>
+        <Form.Group as={Row} className={rowClass}>
             <Form.Label column sm={2}>author ::</Form.Label>
             <Col>
                 <InputGroup className='mb-3'>

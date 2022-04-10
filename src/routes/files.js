@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Container, Row, Col, Spinner, Alert } from 'react-bootstrap'
-import { PencilSquare } from 'react-bootstrap-icons'
+import { PencilSquare, Send } from 'react-bootstrap-icons'
 import { Link } from 'react-router-dom';
 import { create } from 'ipfs-http-client'
 import { ArticleReaderModal, loadArticleFromIPFS } from 'dbranch-core'
@@ -23,6 +23,8 @@ export default function FilesPage(props) {
     const [selectedArticleName, setSelectedArticleName] = useState(null)
     const [selectedArticle, setSelectedArticle] = useState(null)
     const [showArticle, setShowArticle] = useState(false)
+
+    const getPublishedPath = (filename) => window.dBranch.joinPath(props.settings.dBranchPublishedDir, filename)
 
 
     //
@@ -73,9 +75,28 @@ export default function FilesPage(props) {
     const closeArticle = () => { setShowArticle(false) }
     const cleanUpArticle = () => { setSelectedArticleName(null); setSelectedArticle(null) }
 
+    const notifyWire = (name) => {
+        const localPath = getPublishedPath(name)
+
+        const client = create(props.settings.ipfsHost)
+
+        client.files.stat(localPath)
+            .then((stat) => {
+                const payload = {name: name, cid: stat.cid.toString()}
+                console.log(payload)
+                client.pubsub.publish(props.settings.wireChannel, JSON.stringify(payload))
+            }).catch((error) => {
+                console.error(error)
+                setIpfsErrorMsg(error.toString())
+            })
+
+
+        
+    }
+
     useEffect(() => {
         if(selectedArticleName !== null) {
-            const path = window.dBranch.joinPath(props.settings.dBranchPublishedDir, selectedArticleName)
+            const path = getPublishedPath(selectedArticleName)
             console.log('loading from ipfs: ' + path)
             
             loadArticleFromIPFS(create(props.settings.ipfsHost), path)
@@ -100,16 +121,12 @@ export default function FilesPage(props) {
         {/* error messages */}
 
         <Alert variant='danger' show={ipfsErrorMsg !== ''} onClose={() => setIpfsErrorMsg('')} dismissible>
-            <Alert.Heading>Error loading published files</Alert.Heading>
+            <Alert.Heading>IPFS Error</Alert.Heading>
             <p className='alert-text'>{ipfsErrorMsg}</p>
         </Alert>
         <Alert variant='danger' show={localErrorMsg !== ''} onClose={() => setLocalErrorMsg('')} dismissible>
             <Alert.Heading>Error loading drafts</Alert.Heading>
             <p className='alert-text'>{localErrorMsg}</p>
-        </Alert>
-        <Alert variant='danger' show={ipfsErrorMsg !== ''} onClose={() => setIpfsErrorMsg('')} dismissible>
-            <Alert.Heading>Error loading article</Alert.Heading>
-            <p className='alert-text'>{ipfsErrorMsg}</p>
         </Alert>
 
         {/* article reader modal */}
@@ -130,9 +147,14 @@ export default function FilesPage(props) {
                 {publishedDocs.length === 0 && <p><b>no files found</b></p>}
                 {loading && <Spinner />}
                 { 
-                    publishedDocs.map((doc, index) => { return (<Row key={index}><Col>
-                        <a href={doc} className='file-link' onClick={(e) => openArticle(e, doc)}>{doc}</a>
-                    </Col></Row>)}) 
+                    publishedDocs.map((doc, index) => { return (
+                    <Row key={index}>
+                        <Col>
+                            <Send size={19} className='published-file-send-icon' onClick={() => notifyWire(doc)} />
+                            &nbsp;
+                            <a href={doc} className='file-link' onClick={(e) => openArticle(e, doc)}>{doc}</a>
+                        </Col>
+                    </Row>)}) 
                 }
             </Container>
 
