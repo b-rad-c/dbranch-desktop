@@ -207,6 +207,10 @@ article editor
     height: 450px;
 }
 
+.article-editor-container p, .article-editor-container ul, .article-editor-container ol {
+    margin-bottom: 1rem;
+}
+
 .ql-editor {
     font-family: $primaryFont;
     padding: 0px;
@@ -224,8 +228,8 @@ article reader
     max-width: 70%;
 }
 
-.article-reader-container {
-    
+.article-reader-container p, .article-reader-container ul, .article-reader-container ol {
+    margin-bottom: 1rem;
 }
 
 .article-reader-header {

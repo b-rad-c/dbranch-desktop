@@ -22,7 +22,7 @@ function createWindow() {
     }
   });
   mainWindow.menuBarVisible = false;
-  mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`);
+  mainWindow.loadURL(isDev ? 'http://localhost:3001' : `file://${path.join(__dirname, '../build/index.html')}`);
   if (isDev) mainWindow.webContents.openDevTools();
 }
 
