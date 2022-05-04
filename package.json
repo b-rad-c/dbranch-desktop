@@ -1,5 +1,6 @@
 {
-  "name": "dbranch-website",
+  "name": "dbranch-desktop",
+  "productName": "dBranch Desktop",
   "version": "0.1.0",
   "private": true,
   "main": "public/electron.js",
@@ -11,6 +12,7 @@
     "bootstrap-icons": "^1.8.1",
     "dbranch-core": "github:b-rad-c/dbranch-core-js",
     "electron-is-dev": "^2.0.0",
+    "electron-squirrel-startup": "^1.0.0",
     "history": "^5.1.0",
     "ipfs-http-client": "^56.0.1",
     "lorem-ipsum": "^2.0.4",
@@ -28,9 +30,11 @@
   },
   "scripts": {
     "start-web": "PORT=3001 react-scripts start",
-    "build": "react-scripts build",
+    "build": "PUBLIC_URL=\"./\" react-scripts build",
     "eject": "react-scripts eject",
-    "start": "concurrently \"BROWSER=none npm run start-web\" \"wait-on http://127.0.0.1:3001 && electron .\""
+    "start": "concurrently \"BROWSER=none npm run start-web\" \"wait-on http://127.0.0.1:3001 && electron-forge start\"",
+    "package": "electron-forge package",
+    "make": "npm run build && electron-forge make"
   },
   "eslintConfig": {
     "extends": [
@@ -54,9 +58,16 @@
     "*.scss"
   ],
   "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.63",
+    "@electron-forge/maker-deb": "^6.0.0-beta.63",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.63",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
+    "@electron-forge/maker-zip": "^6.0.0-beta.63",
     "concurrently": "^7.0.0",
     "electron": "^17.1.0",
-    "electron-builder": "^22.14.13",
     "wait-on": "^6.0.1"
+  },
+  "config": {
+    "forge": "./forge.config.js"
   }
 }

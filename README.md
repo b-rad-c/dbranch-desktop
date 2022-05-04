@@ -17,6 +17,7 @@ You need an IPFS node to connect to, the easiest way to connect to run one is wi
 
 
 ##### reference
+icns convert: https://cloudconvert.com/png-to-icns
 https://medium.com/@kitze/%EF%B8%8F-from-react-to-an-electron-app-ready-for-production-a0468ecb1da3
 
 ##### known bugs
