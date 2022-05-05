@@ -4,6 +4,8 @@ import { PencilSquare, Send } from 'react-bootstrap-icons'
 import { Link } from 'react-router-dom';
 import { create } from 'ipfs-http-client'
 import { ArticleReaderModal, loadArticleFromIPFS } from 'dbranch-core'
+import { ipfsDownloadURL } from '../constants'
+import { ExternalURL } from '../utilities/misc'
 
 
 export default function FilesPage(props) {
@@ -122,7 +124,7 @@ export default function FilesPage(props) {
 
         <Alert variant='danger' show={ipfsErrorMsg !== ''} onClose={() => setIpfsErrorMsg('')} dismissible>
             <Alert.Heading>IPFS Error</Alert.Heading>
-            <p className='alert-text'>{ipfsErrorMsg}</p>
+            <p className='alert-text'>{ipfsErrorMsg} - if you don't have IPFS installed, you can download it from <ExternalURL url={ipfsDownloadURL}>this link</ExternalURL>.</p>
         </Alert>
         <Alert variant='danger' show={localErrorMsg !== ''} onClose={() => setLocalErrorMsg('')} dismissible>
             <Alert.Heading>Error loading drafts</Alert.Heading>

@@ -1,0 +1,1 @@
+export const ipfsDownloadURL = 'https://docs.ipfs.io/install/ipfs-desktop/'

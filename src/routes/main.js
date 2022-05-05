@@ -1,18 +1,20 @@
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom'
+import { ipfsDownloadURL } from '../constants'
+import { ExternalURL } from '../utilities/misc'
 
 export default function MainPage() {
-
-const openIPFSDesktop = (e) => { window.dBranch.openInBrowser('https://docs.ipfs.io/install/ipfs-desktop/'); e.preventDefault() }
 
 return (
 <main>
     <div className='content'>
         <h1>Welcome to the dBranch editor!</h1>
-        <p>
-            To use this program you will need an IPFS node to connect to. 
-            The easiest way to run one locally is to install <a href='https://docs.ipfs.io/install/ipfs-desktop/' onClick={openIPFSDesktop}>IPFS Desktop</a>.
-            Head to the <Link to='/settings'>settings</Link> tab to test your connection or change the default address.
-        </p>
+        <h3>Instructions</h3>
+        <ul>
+            <li>Install an IPFS node, the easiest way to run one locally is to install <ExternalURL url={ipfsDownloadURL}>IPFS Desktop</ExternalURL>.</li>
+            <li>Go to the <Link to='/settings'>settings</Link> tab to test your connection or change the default IPFS address.</li>
+            <li>Go to the <Link to='/edit'>editor</Link> tab to draft an article, you can save it on your computer and publish to IPFS when you're ready.</li>
+            <li>Go to the <Link to='/files'>files</Link> tab to view your drafts and published articles.</li>
+        </ul>
     </div>
 </main>
 );
