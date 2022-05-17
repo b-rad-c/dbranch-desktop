@@ -5,14 +5,21 @@ module.exports = {
     },
     makers: [
         {
+            name: '@electron-forge/maker-squirrel',
+            config: {
+                authors: 'Brad Corlett',
+                description: 'The dBranch desktop application'
+            }
+        },
+        {
             name: '@electron-forge/maker-zip'
         },
         {
             name: '@electron-forge/maker-dmg',
             config: {
                 background: './assets/dmg-background.png',
-                icon: './assets/desktop-icon.icns'
+                icon: './assets/desktop-icon.icns' // icon for the title bar of the dmg finder window
             }
-          }
+        }
     ]
 }
