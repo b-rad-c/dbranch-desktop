@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Alert, Form, Row, Col, InputGroup, Button, Spinner } from 'react-bootstrap'
-import { ArrowClockwise, Check2Circle } from 'react-bootstrap-icons'
-import { dBranchAPI, ArticleIndex, ArticleReader  } from 'dbranch-core'
+import { Alert, Form, InputGroup, Button, Spinner } from 'react-bootstrap'
+import { ArrowClockwise, BoxArrowUpRight, Check2Circle, CaretLeftFill } from 'react-bootstrap-icons'
+import { dBranchAPI, ArticleIndex, ArticleReader, CardanoExplorerLink } from 'dbranch-core'
+import { ExternalURL } from '../utilities/misc'
 
 
 export default function BrowsePage(props) {
@@ -11,12 +12,13 @@ export default function BrowsePage(props) {
 
     const [showError, setShowError] = useState(false)
     const [errMsg, setErrMsg] = useState('')
-    const [loading, setLoading ] = useState(true)
+    const [loading, setLoading ] = useState(true)           // changing this to true forces an index load (or refresh) and displays loading icon
     const [loadSuccess, setLoadSuccess ] = useState(false)
 
     const [articleIndex, setArticleIndex] = useState(null)
     const [articleName, setArticleName] = useState(null)    // article to load
     const [article, setArticle] = useState(null)            // loaded article
+    const [explorerURL, setExplorerURL] = useState('')
     const showArticleIndex = articleIndex !== null && article === null
 
     const loadArticleIndex = () => setLoading(true)
@@ -47,6 +49,7 @@ export default function BrowsePage(props) {
                     setLoading(false)
                 })
         }
+    // eslint-disable-next-line
     }, [loading]);
 
     useEffect(() => {
@@ -57,6 +60,7 @@ export default function BrowsePage(props) {
                 .then((article) => {
                     console.log('loaded article', article)
                     setArticle(article)
+                    setExplorerURL(CardanoExplorerLink(article.record.cardano_tx_hash))
                 }).catch((error) => {
                     console.log(error)
                     setErrMsg('Error loading article, please try again.')
@@ -65,6 +69,7 @@ export default function BrowsePage(props) {
                     setLoading(false)
                 })
         }
+    // eslint-disable-next-line
     }, [articleName])
 
 return (
@@ -77,34 +82,50 @@ return (
 
     <div className='content'>
 
-        {/* network address bar */}
+        {   /* network address bar */
 
-        <Row>
-            <Col className='text-end' lg='2'><p className='inline-header'><strong>network :: </strong></p></Col>
-            <Col>
+            showArticleIndex &&
+            <div>
                 <InputGroup className='mb-3'>
+                    <Form.Text className='text-dark inline-header fw-bold'>network ::&nbsp;</Form.Text>
                     <Button variant='secondary'>
                         {loadSuccess && <Check2Circle size={20} />}
                         {!loadSuccess && <ArrowClockwise size={20} onClick={loadArticleIndex} />}
                     </Button>
                     <Form.Control size='md' type='text' value={networkHost} onChange={updateNetworkHost} />
                 </InputGroup>
-            </Col>
-        </Row>
+            </div>
+        }
+
+        
 
         {/* article index */}
 
         {loading && <div className='text-center'><Spinner animation='border' /></div>}
-        {showArticleIndex && <ArticleIndex gap={2} theme='bubble' onItemClick={loadToArticle} index={articleIndex}/>}
+        {showArticleIndex && 
+            <ArticleIndex 
+                gap={2} 
+                theme='bubble' 
+                onItemClick={loadToArticle} 
+                index={articleIndex}
+                />
+        }
 
         {/* display article */}
         {article &&
             <div>
 
-                <Button variant='secondary' onClick={closeArticle}>close</Button>
+                <Button 
+                    className='position-absolute top-2 start-1 fw-bold' 
+                    variant='secondary' 
+                    onClick={closeArticle}
+                >
+                        <CaretLeftFill size={22} />
+                        back
+                </Button>
 
                 <ArticleReader article={article}>
-                    { /*<span><ExternalLink url={explorerURL}>view on explorer</ExternalLink> <BoxArrowUpRight size={12}/></span>*/ }
+                    { <span><ExternalURL url={explorerURL}>view on explorer</ExternalURL> <BoxArrowUpRight size={12}/></span> }
                 </ArticleReader>
             
             </div>

@@ -2,8 +2,7 @@ import React, { useState } from 'react'
 import ReactQuill from 'react-quill'
 import { ArticleReaderModal } from 'dbranch-core'
 import { Check2Circle } from 'react-bootstrap-icons'
-import { Form, FormControl, InputGroup, Button, Stack, Row, Col, Spinner } from 'react-bootstrap'
-import { randomArticleTitle, randomParagraph, randomArticleSubTitle, randomName, randomWords } from '../utilities/generators'
+import { Form, FormControl, Button, Stack, Row, Col, Spinner } from 'react-bootstrap'
 
 
 //
@@ -11,11 +10,73 @@ import { randomArticleTitle, randomParagraph, randomArticleSubTitle, randomName,
 //
 
 export default function ArticleEditor(props) {
+    const [showPreview, setShowPreview] = useState(false)
+    const [articlePreview, setArticlePreview] = useState(null)
+    const [showHeader, setShowHeader] = useState(true)
+
+    const toggleHeader = () => setShowHeader(!showHeader)
+
     return (
         <div className='article-editor'>
-            <ArticleEditorHeader article={props.article} action={props.action} />
+
+            <ArticleReaderModal 
+                show=           {showPreview} 
+                closeArticle=   {() => { setShowPreview(false) } }
+                onExited=       {() => { setArticlePreview(null) }}
+                modalTitle=     {props.article.documentName} 
+                article=        {articlePreview} 
+                />  
+
+            <ArticleEditorToolbar 
+                article={props.article} 
+                action={props.action} 
+                setShowPreview={setShowPreview} 
+                setArticlePreview={setArticlePreview} 
+                closeEditor={props.closeEditor}
+                toggleHeader={toggleHeader}
+                />
+
+            {showHeader && <ArticleEditorHeader article={props.article} action={props.action} />}
             <ArticleEditorBody article={props.article} action={props.action} editorRef={props.editorRef}/>
+
         </div>
+    );
+}
+
+export function ArticleEditorToolbar(props) {
+
+    const action = props.action
+
+    const save = () => action.setRunningAction('save')
+    const publish = () => action.setRunningAction('publish')
+    const openArticle = () => { props.setArticlePreview(props.article.makeArticle()); props.setShowPreview(true) }
+
+    const Spin = (<Spinner as='span' animation='border' size='sm' role='status' aria-hidden='true' />)
+
+    return (
+        <Stack className='article-editor-toolbar' direction='horizontal' gap={2}>
+
+            <Button onClick={props.closeEditor}>Close</Button>
+
+            {/* save button */}
+            <Button disabled={action.readOnly} onClick={save}>
+                { action.actionIsRunning('save')        && Spin}
+                { action.actionWasSuccessful('save')    && <Check2Circle />}
+                { action.actionNormal('save')           && <span>Save</span>}
+            </Button>
+
+            {/* preview button */}
+            <Button disabled={action.readOnly} onClick={openArticle}>Preview</Button>
+
+            {/* publish button */}
+            <Button disabled={action.readOnly} onClick={publish}>
+                { action.actionIsRunning('publish')     && Spin}
+                { action.actionWasSuccessful('publish') && <Check2Circle />}
+                { action.actionNormal('publish')        && <span>Publish</span>}
+            </Button>
+
+            <Button onClick={props.toggleHeader}>Toggle header</Button>
+        </Stack>
     );
 }
 
@@ -25,19 +86,15 @@ export default function ArticleEditor(props) {
 
 
 export function ArticleEditorHeader(props) {
+
     const article = props.article
     const disabled = props.action.readOnly
-    const nameHandler = (e) => article.setDocumentName(e.target.value)
 
+    const nameHandler = (e) => article.setDocumentName(e.target.value)
     const typeHandler = (e) => article.updateDoc('type', e.target.value)
     const titleHandler = (e) => article.updateDoc('title', e.target.value)
-    const randomTitle = () => article.updateDoc('title', randomArticleTitle())
-
     const subTitleHandler = (e) => article.updateDoc('subTitle', e.target.value)
-    const randomSubTitle = () => article.updateDoc('subTitle', randomArticleSubTitle())
-
     const authorHandler = (e) => article.updateDoc('author', e.target.value)
-    const randomAuthor = () => article.updateDoc('author', randomName())
 
     const rowClass = 'mb-3 text-end'
 
@@ -69,30 +126,21 @@ export function ArticleEditorHeader(props) {
         <Form.Group as={Row} className={rowClass}>
             <Form.Label column sm={2}>title ::</Form.Label>
             <Col>
-                <InputGroup className='mb-3'>
-                    <Button disabled={disabled} variant='secondary' id='button-addon1' onClick={randomTitle}>Random</Button>
-                    <FormControl disabled={disabled} type='string' placeholder='Enter title...' value={article.doc.title} onChange={titleHandler} />
-                </InputGroup>
+                <FormControl disabled={disabled} type='string' placeholder='Enter title...' value={article.doc.title} onChange={titleHandler} />
             </Col>
         </Form.Group>
 
         <Form.Group as={Row} className={rowClass}>
             <Form.Label column sm={2}>subtitle ::</Form.Label>
             <Col>
-                <InputGroup className='mb-3'>
-                    <Button disabled={disabled} variant='secondary' id='button-addon1' onClick={randomSubTitle}>Random</Button>
-                    <FormControl disabled={disabled} as='textarea' placeholder='Enter subtitle...' style={{height: '65px'}} value={article.doc.subTitle} onChange={subTitleHandler}/>
-                </InputGroup>
+                <FormControl disabled={disabled} as='textarea' placeholder='Enter subtitle...' style={{height: '65px'}} value={article.doc.subTitle} onChange={subTitleHandler}/>
             </Col>
         </Form.Group>
         
         <Form.Group as={Row} className={rowClass}>
             <Form.Label column sm={2}>author ::</Form.Label>
             <Col>
-                <InputGroup className='mb-3'>
-                    <Button disabled={disabled} variant='secondary' id='button-addon1' onClick={randomAuthor}>Random</Button>
-                    <FormControl disabled={disabled} type='string' placeholder='Enter title...' value={article.doc.author} onChange={authorHandler} />
-                </InputGroup>
+                <FormControl disabled={disabled} type='string' placeholder='Enter title...' value={article.doc.author} onChange={authorHandler} />
             </Col>
         </Form.Group>
         
@@ -107,43 +155,9 @@ export function ArticleEditorHeader(props) {
 export function ArticleEditorBody(props) {
     const action = props.action
     const [quillValue, setQuillValue] = useState(props.article.doc.contents)
-    const [showPreview, setShowPreview] = useState(false)
-    const [articlePreview, setArticlePreview] = useState(null)
-    const [showCopyConfirmation, setShowCopyConfirmation] = useState(false)
-
-    const randomButtonLabel = showCopyConfirmation ? 'copied!' : 'random generators :: '
-
-    const save = () => action.setRunningAction('save')
-    const publish = () => action.setRunningAction('publish')
-
-    const copyParagraph = () => {
-        window.dBranch.copyText(randomParagraph())
-        setShowCopyConfirmation(true)
-        setTimeout(() => setShowCopyConfirmation(false), 2500)
-    }
-
-    const copyWords = () => {
-        window.dBranch.copyText(randomWords())
-        setShowCopyConfirmation(true)
-        setTimeout(() => setShowCopyConfirmation(false), 2500)
-    }
-
-    const openArticle = () => { setArticlePreview(props.article.makeArticle()); setShowPreview(true) }
-
-    const Spin = (<Spinner as='span' animation='border' size='sm' role='status' aria-hidden='true' />)
 
     return (
         <div className='mt-2'>
-
-            { /* article preview modal */}
-
-            <ArticleReaderModal 
-                show=           {showPreview} 
-                closeArticle=   {() => { setShowPreview(false) } }
-                onExited=       {() => { setArticlePreview(null) }}
-                modalTitle=     {props.article.documentName} 
-                article=        {articlePreview} 
-                />
 
             { /* actual editing canvas */}
 
@@ -159,37 +173,6 @@ export function ArticleEditorBody(props) {
                     />
             </div>
 
-            { /* button stack */}
-            
-            <Stack className='mt-2' direction='horizontal' gap={2}>
-
-                {/* save button */}
-                <Button disabled={action.readOnly} onClick={save}>
-                    { action.actionIsRunning('save')        && Spin}
-                    { action.actionWasSuccessful('save')    && <Check2Circle />}
-                    { action.actionNormal('save')           && <span>Save</span>}
-                </Button>
-
-                {/* preview button */}
-                <Button disabled={action.readOnly} onClick={openArticle}>Preview</Button>
-
-                <div className="vr" />
-
-                {/* publish button */}
-                <Button disabled={action.readOnly} onClick={publish}>
-                    { action.actionIsRunning('publish')     && Spin}
-                    { action.actionWasSuccessful('publish') && <Check2Circle />}
-                    { action.actionNormal('publish')        && <span>Publish</span>}
-                </Button>                
-                
-                {/* random generators*/}
-                <div className='ms-auto'>{randomButtonLabel}</div>
-                
-                <Button disabled={action.readOnly} onClick={copyParagraph}>Paragraph</Button>
-
-                <Button disabled={action.readOnly} onClick={copyWords}>Words</Button>
-
-            </Stack>
         </div>
     );
 }

@@ -40,7 +40,6 @@ export default function EditPage(props) {
     const actionWasSuccessful = (name) => actionSuccessful === name
     const actionNormal = (name) => !actionIsRunning(name) && !actionWasSuccessful(name)
     const readOnly = runningAction !== null
-    const toggleButtonLabel = showEditor ? 'Back' : 'New Article'
 
     const location = useLocation()
     const editorRef = useRef(null)
@@ -173,15 +172,16 @@ export default function EditPage(props) {
             <Alert.Heading>File error</Alert.Heading>
             <p className='alert-text'>{errorMsg}</p>
         </Alert>
-        <div className='content'>
-        
+
+        <div className='edit-page-container'>
             <div className='article-editor-toolbar'>
                 {loading && <Spinner animation='border' role='status' />}
-                {!loading && <Button onClick={toggleEditor}>{toggleButtonLabel}</Button>}
+                {!showEditor && <Button onClick={toggleEditor}>New Article</Button>}
             </div>
             
-            {showEditor && <ArticleEditor article={article} editorRef={editorRef} action={action} />}
+            {showEditor && <ArticleEditor article={article} editorRef={editorRef} action={action} closeEditor={toggleEditor} />}
         </div>
+
     </main>
     );
 }
