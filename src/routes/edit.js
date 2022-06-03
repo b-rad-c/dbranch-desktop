@@ -1,7 +1,7 @@
 import ArticleEditor from '../components/editor'
 import { useState, useRef, useEffect } from 'react'
 import { Button, Alert, Spinner } from 'react-bootstrap'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import Delta from 'quill-delta'
 import { create } from 'ipfs-http-client'
 import DocumentListings from '../components/documents'
@@ -14,19 +14,23 @@ export default function EditPage(props) {
     // state and handlers
     //
 
-    // state variables
+    const location = useLocation()
+    let navigate = useNavigate()
+    const editorRef = useRef(null)
     const [ loading, setLoading ] = useState(true)
-    
-    const [ runningAction, setRunningAction ] = useState(null)
-    const [ actionSuccessful, setActionSuccessful ] = useState(null)
-    const [ errorMsg, setErrorMsg ] = useState('')
 
+    // editor state & actions
     const [ showEditor, setShowEditor ] = useState(false)
-    const openEditor = () => setShowEditor(showEditor)
+    const openEditor = () => setShowEditor(true)
     const closeEditor = () => {
         setShowEditor(false)
+        navigate('/edit')
+        const defaultArticle = newBlankArticle()
+        setArticle(defaultArticle)
+        setDocumentName(defaultArticle.record.name)
     }
 
+    // article / document state & updaters
     const defaultArticle = newBlankArticle()
     const [ documentName, setDocumentName] = useState(defaultArticle.record.name)
     const [ article, setArticle ] = useState(defaultArticle) 
@@ -37,15 +41,6 @@ export default function EditPage(props) {
         return {...prevDoc, ...updates}
         })
     }
-
-    // dynamic values + misc
-    const actionIsRunning = (name) => runningAction === name && actionSuccessful !== true
-    const actionWasSuccessful = (name) => actionSuccessful === name
-    const actionNormal = (name) => !actionIsRunning(name) && !actionWasSuccessful(name)
-    const readOnly = runningAction !== null
-
-    const location = useLocation()
-    const editorRef = useRef(null)
 
     const makeArticle = () => {
         const newArticle = Object.assign(newBlankArticle(), article)
@@ -58,6 +53,16 @@ export default function EditPage(props) {
         delete article.record
         return JSON.stringify(article)
     }
+
+    // save + publish actions
+    const [ runningAction, setRunningAction ] = useState(null)
+    const [ actionSuccessful, setActionSuccessful ] = useState(null)
+    const [ errorMsg, setErrorMsg ] = useState('')
+
+    const actionIsRunning = (name) => runningAction === name && actionSuccessful !== true
+    const actionWasSuccessful = (name) => actionSuccessful === name
+    const actionNormal = (name) => !actionIsRunning(name) && !actionWasSuccessful(name)
+    const readOnly = runningAction !== null
 
     // helpers for child components
     const document = { article, setArticle, closeEditor, updateArticle, documentName, setArticleName: setDocumentName, makeArticle }

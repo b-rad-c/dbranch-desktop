@@ -77,7 +77,6 @@ export default function DocumentListings(props) {
             })
     }, [])
 
-
     //
     // open an article from ipfs 
     //

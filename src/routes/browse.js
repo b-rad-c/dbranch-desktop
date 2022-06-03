@@ -82,7 +82,9 @@ return (
 
     <div className='content'>
 
-        {   /* network address bar */
+        {loading && <div className='text-center'><Spinner animation='border' /></div>}
+
+        {   /* network address bar (shown if indedx is open) */
 
             showArticleIndex &&
             <div>
@@ -96,13 +98,10 @@ return (
                 </InputGroup>
             </div>
         }
-
         
+        {   /* article index */
 
-        {/* article index */}
-
-        {loading && <div className='text-center'><Spinner animation='border' /></div>}
-        {showArticleIndex && 
+            showArticleIndex && 
             <ArticleIndex 
                 gap={2} 
                 theme='bubble' 
@@ -111,8 +110,9 @@ return (
                 />
         }
 
-        {/* display article */}
-        {article &&
+        {/* display article */
+
+            article &&
             <div>
 
                 <Button 
