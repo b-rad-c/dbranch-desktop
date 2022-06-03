@@ -1,30 +1,34 @@
 import { useState, useEffect } from 'react'
 import { Container, Row, Col, Spinner, Alert } from 'react-bootstrap'
-import { PencilSquare, Send } from 'react-bootstrap-icons'
+import { PencilSquare, Send, BoxArrowUpRight } from 'react-bootstrap-icons'
 import { Link } from 'react-router-dom';
 import { create } from 'ipfs-http-client'
-import { ArticleReaderModal, loadArticleFromIPFS } from 'dbranch-core'
+import { ArticleReaderModal, loadArticleFromIPFS, CardanoExplorerLink } from 'dbranch-core'
 import { ipfsDownloadURL } from '../constants'
 import { ExternalURL } from '../utilities/misc'
 
 
-export default function FilesPage(props) {
+export default function DocumentListings(props) {
 
     //
     // state variables
     //
 
     const settings = props.settings
+    const publishedDir = settings.dBranchPublishedDir
+    const curatedDir = settings.dBranchCuratedDir
 
     const [loading, setLoading] = useState(true)
     const [drafts, setDrafts] = useState([])
     const [publishedDocs, setPublishedDocs] = useState([])
+    const [curatedDocs, setCuratedDocs] = useState([])
     const [ipfsErrorMsg, setIpfsErrorMsg] = useState('')
     const [localErrorMsg, setLocalErrorMsg] = useState('')
 
-    const [selectedArticleName, setSelectedArticleName] = useState(null)
-    const [selectedArticle, setSelectedArticle] = useState(null)
-    const [showArticle, setShowArticle] = useState(false)
+    const [articleToPreviewPath, setArticleToPreviewPath] = useState(null)
+    const [articleToPreview, setArticleToPreview] = useState(null)
+    const [showArticlePreview, setShowArticlePreview] = useState(false)
+    const [cardanoExplorerUrl, setCardanoExplorerUrl] = useState('')
 
     const getPublishedPath = (filename) => window.dBranch.joinPath(props.settings.dBranchPublishedDir, filename)
 
@@ -33,21 +37,26 @@ export default function FilesPage(props) {
     // load file listings (run automatically on first render)
     //
 
-    async function loadIPFSDocs() {
-        console.log('listing published documents...')
+    async function loadIPFSDocs(directory) {
         const names = []
         const ipfsClient = create(settings.ipfsHost)
-        for await (const f of ipfsClient.files.ls(settings.dBranchPublishedDir)) {
+        for await (const f of ipfsClient.files.ls(directory)) {
             names.push(f.name)
         }
         return names
     }
 
+    // load published then curated docs
     useEffect(() => {
-        loadIPFSDocs()
-            .then((result) => {
-                console.log('ipfs files', result)
-                setPublishedDocs(result)
+        loadIPFSDocs(publishedDir)
+            .then((published_docs) => {
+                setPublishedDocs(published_docs.filter(name => name.endsWith('.news')))
+
+                loadIPFSDocs(curatedDir)
+                    .then((curated_docs) => {
+                        setCuratedDocs(curated_docs.filter(name => name.endsWith('.news')))
+                    })
+
             }).catch((error) => {
                 console.error(error) 
                 setIpfsErrorMsg(error.toString())
@@ -55,8 +64,8 @@ export default function FilesPage(props) {
     // eslint-disable-next-line
     }, [])
 
+    // load drafts stored on local machine
     useEffect(() => {
-        console.log('listing user documents...')
         window.dBranch.listUserDocuments()
             .then((result) => {
                 const docs = result.filter((name) => !name.startsWith('.') )
@@ -73,13 +82,34 @@ export default function FilesPage(props) {
     // open an article from ipfs 
     //
 
-    const openArticle = (e, name) => { setSelectedArticleName(name); e.preventDefault() }
-    const closeArticle = () => { setShowArticle(false) }
-    const cleanUpArticle = () => { setSelectedArticleName(null); setSelectedArticle(null) }
+    const openArticle = (e, path) => { setArticleToPreviewPath(path); e.preventDefault() }
+    const closeArticle = () => { setShowArticlePreview(false) }
+    const cleanUpArticle = () => { setArticleToPreviewPath(null); setArticleToPreview(null) }
+
+    useEffect(() => {
+        if(articleToPreviewPath !== null) {
+            console.log('loading from ipfs: ' + articleToPreviewPath)
+            loadArticleFromIPFS(create(props.settings.ipfsHost), articleToPreviewPath, true)
+                .then((result) => {
+                    console.log('article loaded successfully', result)
+                    setArticleToPreview(result)
+                    setShowArticlePreview(true)
+                    setCardanoExplorerUrl(CardanoExplorerLink(result.record.cardano_tx_hash))
+                }).catch((error) => {
+                    console.error(error)
+                    setIpfsErrorMsg(error.toString())
+                })
+        }
+    
+        // eslint-disable-next-line
+    }, [articleToPreviewPath])
+
+    //
+    // wire
+    //
 
     const notifyWire = (name) => {
         const localPath = getPublishedPath(name)
-
         const client = create(props.settings.ipfsHost)
 
         client.files.stat(localPath)
@@ -91,34 +121,12 @@ export default function FilesPage(props) {
                 console.error(error)
                 setIpfsErrorMsg(error.toString())
             })
-
-
-        
     }
-
-    useEffect(() => {
-        if(selectedArticleName !== null) {
-            const path = getPublishedPath(selectedArticleName)
-            console.log('loading from ipfs: ' + path)
-            
-            loadArticleFromIPFS(create(props.settings.ipfsHost), path)
-                .then((result) => {
-                    console.log('article loaded successfully', result)
-                    setSelectedArticle(result)
-                    setShowArticle(true)
-                }).catch((error) => {
-                    console.error(error)
-                    setIpfsErrorMsg(error.toString())
-                })
-        }
-    
-        // eslint-disable-next-line
-    }, [selectedArticleName])
 
 
     const label = 'files'
     return (
-    <main>
+    <div>
 
         {/* error messages */}
 
@@ -134,16 +142,24 @@ export default function FilesPage(props) {
         {/* article reader modal */}
 
         <ArticleReaderModal 
-            show={showArticle} 
+            show={showArticlePreview} 
             closeArticle={closeArticle} 
             onExited={cleanUpArticle}
-            modalTitle={selectedArticleName} 
-            article={selectedArticle} 
-            />
+            modalTitle={articleToPreviewPath} 
+            article={articleToPreview} 
+            >   
 
-        {/* list published ipfs files */}
+            <span>
+                <ExternalURL url={cardanoExplorerUrl}>view on explorer</ExternalURL> <BoxArrowUpRight size={12}/>
+            </span>
+            
+
+        </ArticleReaderModal>
 
         <div className='content'>
+
+            {/* list published ipfs files */}
+
             <p className='inline-header'><strong>published :: </strong>{publishedDocs.length} {label}</p>
             <Container>
                 {publishedDocs.length === 0 && <p><b>no files found</b></p>}
@@ -154,7 +170,23 @@ export default function FilesPage(props) {
                         <Col>
                             <Send size={19} className='published-file-send-icon' onClick={() => notifyWire(doc)} />
                             &nbsp;
-                            <a href={doc} className='file-link' onClick={(e) => openArticle(e, doc)}>{doc}</a>
+                            <a href={doc} className='file-link' onClick={(e) => openArticle(e, publishedDir + '/' + doc)}>{doc}</a>
+                        </Col>
+                    </Row>)}) 
+                }
+            </Container>
+
+            {/* list curated ipfs files */}
+
+            <p className='inline-header'><strong>curated :: </strong>{curatedDocs.length} {label}</p>
+            <Container>
+                {curatedDocs.length === 0 && <p><b>no files found</b></p>}
+                {loading && <Spinner />}
+                { 
+                    curatedDocs.map((doc, index) => { return (
+                    <Row key={index}>
+                        <Col>
+                            <a href={doc} className='file-link' onClick={(e) => openArticle(e, curatedDir + '/' + doc)}>{doc}</a>
                         </Col>
                     </Row>)}) 
                 }
@@ -179,6 +211,6 @@ export default function FilesPage(props) {
                 }
             </Container>
         </div>
-    </main>
+    </div>
     );
 }

@@ -4,7 +4,6 @@ import './index.scss'
 
 import BrowsePage from './routes/browse';
 import EditPage from './routes/edit';
-import FilesPage from './routes/files';
 import MainPage from './routes/main';
 import SettingsPage from './routes/settings';
 
@@ -13,7 +12,7 @@ import { render } from 'react-dom';
 import { Stack } from 'react-bootstrap'
 import { Routes, Route, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { HashRouter, NavLink } from 'react-router-dom';
-import { PencilSquare, HouseDoor, Gear, Folder, Newspaper } from 'react-bootstrap-icons'
+import { PencilSquare, HouseDoor, Gear, Newspaper } from 'react-bootstrap-icons'
 
 function App() {
   let navigate = useNavigate();
@@ -30,7 +29,6 @@ function App() {
   const paths = [
     ['/', 'Home', (<HouseDoor size={iconSize} />)],
     ['/browse', 'Browse', (<Newspaper size={iconSize} />)],
-    ['/files', 'Files', (<Folder size={iconSize} />)],
     ['/edit', 'Editor', (<PencilSquare size={iconSize} />)],
     ['/settings', 'Settings', (<Gear size={iconSize} />)],
   ]
@@ -72,6 +70,7 @@ const defaultSettings = {
   defaultNetworkHost: 'http://localhost:1323',
   draftFolder: '/Users/folder',
   dBranchPublishedDir: '/dBranch/published',
+  dBranchCuratedDir: '/dBranch/curated',
   wireChannel: 'dbranch-wire'
 }
 
@@ -95,7 +94,6 @@ function Root() {
         <Route index element={<MainPage />} />
         <Route path='browse' element={<BrowsePage settings={settings} />} />
         <Route path='edit' element={<EditPage settings={settings} />} />
-        <Route path='files' element={<FilesPage settings={settings} />} />
         <Route path='settings' element={<SettingsPage settings={settings} updateSetting={updateSetting} resetSettings={resetSettings} />} />
         <Route
           path='*'

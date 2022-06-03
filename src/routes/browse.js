@@ -116,8 +116,8 @@ return (
             <div>
 
                 <Button 
-                    className='position-absolute top-2 start-1 fw-bold' 
-                    variant='secondary' 
+                    className='position-absolute top-2 start-1 fw-bold border-primary' 
+                    variant='light' 
                     onClick={closeArticle}
                 >
                         <CaretLeftFill size={22} />

@@ -28,7 +28,7 @@ body {
     -moz-osx-font-smoothing: grayscale;
     text-align: left;
     color: $dark;
-    overflow-y: auto;
+    // overflow-y: auto;
 }
 
 main {
@@ -226,7 +226,9 @@ article editor
 }
 
 .article-editor-container {
-    height: 500px;
+    height: 100%;
+    min-height: 100%;
+    overflow-y: auto;
 }
 
 .article-editor-container p, .article-editor-container ul, .article-editor-container ol {
@@ -235,8 +237,10 @@ article editor
 
 .ql-editor {
     font-family: $primaryFont;
-    padding: 0px;
-    height: 100%;
+    height: auto;
+    min-height: 100%;
+    padding: 50px;
+    overflow-y: auto;
 }
 
 .ql-editor h3 {

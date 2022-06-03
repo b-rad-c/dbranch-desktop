@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import ReactQuill from 'react-quill'
 import { ArticleReaderModal } from 'dbranch-core'
-import { Check2Circle } from 'react-bootstrap-icons'
+import { Check2Circle, CaretRightFill, CaretDownFill } from 'react-bootstrap-icons'
 import { Form, FormControl, Button, Stack, Row, Col, Spinner } from 'react-bootstrap'
 
 
@@ -12,9 +12,11 @@ import { Form, FormControl, Button, Stack, Row, Col, Spinner } from 'react-boots
 export default function ArticleEditor(props) {
     const [showPreview, setShowPreview] = useState(false)
     const [articlePreview, setArticlePreview] = useState(null)
-    const [showHeader, setShowHeader] = useState(true)
 
-    const toggleHeader = () => setShowHeader(!showHeader)
+    const openArticlePreview = () => { 
+        setArticlePreview(props.document.makeArticle())
+        setShowPreview(true) 
+    }
 
     return (
         <div className='article-editor'>
@@ -23,21 +25,19 @@ export default function ArticleEditor(props) {
                 show=           {showPreview} 
                 closeArticle=   {() => { setShowPreview(false) } }
                 onExited=       {() => { setArticlePreview(null) }}
-                modalTitle=     {props.article.documentName} 
+                modalTitle=     {props.document.documentName} 
                 article=        {articlePreview} 
                 />  
 
             <ArticleEditorToolbar 
-                article={props.article} 
+                document={props.document} 
                 action={props.action} 
                 setShowPreview={setShowPreview} 
-                setArticlePreview={setArticlePreview} 
-                closeEditor={props.closeEditor}
-                toggleHeader={toggleHeader}
+                openArticlePreview={openArticlePreview} 
                 />
 
-            {showHeader && <ArticleEditorHeader article={props.article} action={props.action} />}
-            <ArticleEditorBody article={props.article} action={props.action} editorRef={props.editorRef}/>
+            <ArticleEditorHeader document={props.document} action={props.action} />
+            <ArticleEditorBody document={props.document} action={props.action} editorRef={props.editorRef}/>
 
         </div>
     );
@@ -49,33 +49,32 @@ export function ArticleEditorToolbar(props) {
 
     const save = () => action.setRunningAction('save')
     const publish = () => action.setRunningAction('publish')
-    const openArticle = () => { props.setArticlePreview(props.article.makeArticle()); props.setShowPreview(true) }
 
     const Spin = (<Spinner as='span' animation='border' size='sm' role='status' aria-hidden='true' />)
-
+    
+    const variant = 'outline-dark'
     return (
         <Stack className='article-editor-toolbar' direction='horizontal' gap={2}>
 
-            <Button onClick={props.closeEditor}>Close</Button>
+            <Button variant={variant} onClick={props.document.closeEditor}>Close</Button>
 
             {/* save button */}
-            <Button disabled={action.readOnly} onClick={save}>
+            <Button variant={variant} disabled={action.readOnly} onClick={save}>
                 { action.actionIsRunning('save')        && Spin}
                 { action.actionWasSuccessful('save')    && <Check2Circle />}
                 { action.actionNormal('save')           && <span>Save</span>}
             </Button>
 
             {/* preview button */}
-            <Button disabled={action.readOnly} onClick={openArticle}>Preview</Button>
+            <Button variant={variant} disabled={action.readOnly} onClick={props.openArticlePreview}>Preview</Button>
 
             {/* publish button */}
-            <Button disabled={action.readOnly} onClick={publish}>
+            <Button variant={variant} disabled={action.readOnly} onClick={publish}>
                 { action.actionIsRunning('publish')     && Spin}
                 { action.actionWasSuccessful('publish') && <Check2Circle />}
                 { action.actionNormal('publish')        && <span>Publish</span>}
             </Button>
 
-            <Button onClick={props.toggleHeader}>Toggle header</Button>
         </Stack>
     );
 }
@@ -87,62 +86,82 @@ export function ArticleEditorToolbar(props) {
 
 export function ArticleEditorHeader(props) {
 
-    const article = props.article
+    const document = props.document
     const disabled = props.action.readOnly
 
-    const nameHandler = (e) => article.setDocumentName(e.target.value)
-    const typeHandler = (e) => article.updateDoc('type', e.target.value)
-    const titleHandler = (e) => article.updateDoc('title', e.target.value)
-    const subTitleHandler = (e) => article.updateDoc('subTitle', e.target.value)
-    const authorHandler = (e) => article.updateDoc('author', e.target.value)
+    const [collapsed, setCollapsed] = useState(false)
+    const toggleCollapsed = () => setCollapsed(!collapsed)
+
+    const nameHandler = (e) => document.setDocumentName(e.target.value)
+    const typeHandler = (e) => document.updateArticle('type', e.target.value)
+    const titleHandler = (e) => document.updateArticle('title', e.target.value)
+    const subTitleHandler = (e) => document.updateArticle('subTitle', e.target.value)
+    const authorHandler = (e) => document.updateArticle('author', e.target.value)
 
     const rowClass = 'mb-3 text-end'
 
     return (
     <Form className='article-editor-header' style={{width: '70%'}}>
         <Form.Group as={Row} className={rowClass}>
-            <Form.Label column sm={2}>document ::</Form.Label>
-            <Col>
-                <FormControl disabled={disabled} type='string' placeholder='Enter filename...' value={article.documentName} onChange={nameHandler} />
+            <Col sm={1}>
+                <Button variant='outline-dark' onClick={toggleCollapsed}>
+                    {collapsed && <CaretRightFill size={16}/>}
+                    {!collapsed && <CaretDownFill size={16}/>}
+                </Button>
             </Col>
-        </Form.Group>
-
-        <Form.Group as={Row} className={rowClass}>
-            <Form.Label column sm={2}>type ::</Form.Label>
-            <Col>
-                <Form.Select value={article.doc.type} onChange={typeHandler}>
-                    <option value='news'>news</option>
-                    <option value='opinion'>opinion</option>
-                    <option value='review'>review</option>
-                    <option value='information'>information</option>
-                    <option value='context'>context</option>
-                    <option value='question'>question</option>
-                    <option value='answer'>answer</option>
-                    <option value='satire'>satire</option>
-                </Form.Select>
-            </Col>
-        </Form.Group>
-            
-        <Form.Group as={Row} className={rowClass}>
-            <Form.Label column sm={2}>title ::</Form.Label>
-            <Col>
-                <FormControl disabled={disabled} type='string' placeholder='Enter title...' value={article.doc.title} onChange={titleHandler} />
-            </Col>
-        </Form.Group>
-
-        <Form.Group as={Row} className={rowClass}>
-            <Form.Label column sm={2}>subtitle ::</Form.Label>
-            <Col>
-                <FormControl disabled={disabled} as='textarea' placeholder='Enter subtitle...' style={{height: '65px'}} value={article.doc.subTitle} onChange={subTitleHandler}/>
-            </Col>
-        </Form.Group>
         
-        <Form.Group as={Row} className={rowClass}>
-            <Form.Label column sm={2}>author ::</Form.Label>
+            <Form.Label column sm={2}>document ::</Form.Label>
+            
             <Col>
-                <FormControl disabled={disabled} type='string' placeholder='Enter title...' value={article.doc.author} onChange={authorHandler} />
+                <FormControl disabled={disabled} type='string' placeholder='Enter filename...' value={document.documentName} onChange={nameHandler} />
             </Col>
         </Form.Group>
+
+        {
+            !collapsed &&
+            <span>
+                <Form.Group as={Row} className={rowClass}>
+                    <Col sm={1} />
+                    <Form.Label column sm={2}>type ::</Form.Label>
+                    <Col>
+                        <Form.Select value={document.article.type} onChange={typeHandler}>
+                            <option value='news'>news</option>
+                            <option value='opinion'>opinion</option>
+                            <option value='review'>review</option>
+                            <option value='information'>information</option>
+                            <option value='context'>context</option>
+                            <option value='question'>question</option>
+                            <option value='answer'>answer</option>
+                            <option value='satire'>satire</option>
+                        </Form.Select>
+                    </Col>
+                </Form.Group>
+                    
+                <Form.Group as={Row} className={rowClass}>
+                    <Col sm={1} />
+                    <Form.Label column sm={2}>title ::</Form.Label>
+                    <Col>
+                        <FormControl disabled={disabled} type='string' placeholder='Enter title...' value={document.article.title} onChange={titleHandler} />
+                    </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className={rowClass}>
+                    <Col sm={1} />
+                    <Form.Label column sm={2}>subtitle ::</Form.Label>
+                    <Col>
+                        <FormControl disabled={disabled} as='textarea' placeholder='Enter subtitle...' style={{height: '65px'}} value={document.article.subTitle} onChange={subTitleHandler}/>
+                    </Col>
+                </Form.Group>
+                
+                <Form.Group as={Row} className={rowClass}>
+                    <Col sm={1} />
+                    <Form.Label column sm={2}>author ::</Form.Label>
+                    <Col>
+                        <FormControl disabled={disabled} type='string' placeholder='Enter title...' value={document.article.author} onChange={authorHandler} />
+                    </Col>
+                </Form.Group>
+            </span>
+        }
         
     </Form>
     );
@@ -154,7 +173,7 @@ export function ArticleEditorHeader(props) {
 
 export function ArticleEditorBody(props) {
     const action = props.action
-    const [quillValue, setQuillValue] = useState(props.article.doc.contents)
+    const [quillValue, setQuillValue] = useState(props.document.article.contents)
 
     return (
         <div className='mt-2'>
@@ -164,7 +183,7 @@ export function ArticleEditorBody(props) {
             <div className='article-editor-container'>
                 <ReactQuill 
                     ref=           {props.editorRef} 
-                    style=         {{height: '90%'}} 
+                    bounds=        'article-editor-container'
                     readOnly=      {action.readOnly} 
                     theme=         'snow' 
                     value=         {quillValue} 
