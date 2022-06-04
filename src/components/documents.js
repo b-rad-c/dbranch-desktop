@@ -83,18 +83,20 @@ export default function DocumentListings(props) {
 
     const openArticle = (e, path) => { setArticleToPreviewPath(path); e.preventDefault() }
     const closeArticle = () => { setShowArticlePreview(false) }
-    const cleanUpArticle = () => { setArticleToPreviewPath(null); setArticleToPreview(null) }
+    const cleanUpArticle = () => { setArticleToPreviewPath(null); setArticleToPreview(null); setCardanoExplorerUrl('') }
 
     useEffect(() => {
         if(articleToPreviewPath !== null) {
             console.log('loading from ipfs: ' + articleToPreviewPath)
-            loadArticleFromIPFS(create(props.settings.ipfsHost), articleToPreviewPath, true)
+            const loadRecord = articleToPreviewPath.startsWith(curatedDir)
+            loadArticleFromIPFS(create(props.settings.ipfsHost), articleToPreviewPath, loadRecord)
                 .then((result) => {
                     console.log('article loaded successfully', result)
                     setArticleToPreview(result)
                     setShowArticlePreview(true)
-                    setCardanoExplorerUrl(CardanoExplorerLink(result.record.cardano_tx_hash))
-                }).catch((error) => {
+                    const tx_hash = result.record.cardano_tx_hash
+                    if(tx_hash !== '') setCardanoExplorerUrl(CardanoExplorerLink(tx_hash))
+                }).catch((error) => { 
                     console.error(error)
                     setIpfsErrorMsg(error.toString())
                 })
@@ -147,19 +149,41 @@ export default function DocumentListings(props) {
             modalTitle={articleToPreviewPath} 
             article={articleToPreview} 
             >   
-
-            <span>
-                <ExternalURL url={cardanoExplorerUrl}>view on explorer</ExternalURL> <BoxArrowUpRight size={12}/>
-            </span>
+            { cardanoExplorerUrl === '' && <span>-</span>}
+            {
+                cardanoExplorerUrl !== '' && 
+                <span>
+                    <ExternalURL url={cardanoExplorerUrl}>view on explorer</ExternalURL> <BoxArrowUpRight size={12}/>
+                </span>
+            }
+            
             
 
         </ArticleReaderModal>
 
         <div className='content'>
+            {/* list local drafts */}
+
+            <p className='inline-header'><strong>drafts :: </strong>{drafts.length} {label}</p>
+            <Container>
+                {drafts.length === 0 && <p><b>no files found</b></p>}
+                {   drafts.map((draft, index) => {
+                        return (
+                            <Row key={index}>
+                                <Col>
+                                    <PencilSquare className='align-text-bottom' size={19} />
+                                    &nbsp;
+                                    <Link className='file-link' to='/edit' state={{open: draft}}>{draft}</Link>
+                                </Col>
+                            </Row>
+                        )
+                    })
+                }
+            </Container>
 
             {/* list published ipfs files */}
 
-            <p className='inline-header'><strong>published :: </strong>{publishedDocs.length} {label}</p>
+            <p className='inline-header mt-4'><strong>published :: </strong>{publishedDocs.length} {label}</p>
             <Container>
                 {publishedDocs.length === 0 && <p><b>no files found</b></p>}
                 {loading && <Spinner />}
@@ -177,7 +201,7 @@ export default function DocumentListings(props) {
 
             {/* list curated ipfs files */}
 
-            <p className='inline-header'><strong>curated :: </strong>{curatedDocs.length} {label}</p>
+            <p className='inline-header mt-4'><strong>curated :: </strong>{curatedDocs.length} {label}</p>
             <Container>
                 {curatedDocs.length === 0 && <p><b>no files found</b></p>}
                 {loading && <Spinner />}
@@ -188,25 +212,6 @@ export default function DocumentListings(props) {
                             <a href={doc} className='file-link' onClick={(e) => openArticle(e, curatedDir + '/' + doc)}>{doc}</a>
                         </Col>
                     </Row>)}) 
-                }
-            </Container>
-
-            {/* list local drafts */}
-
-            <p className='inline-header mt-4'><strong>drafts :: </strong>{drafts.length} {label}</p>
-            <Container>
-                {drafts.length === 0 && <p><b>no files found</b></p>}
-                {   drafts.map((draft, index) => {
-                        return (
-                            <Row key={index}>
-                                <Col>
-                                    <PencilSquare className='align-text-bottom' size={19} />
-                                    &nbsp;
-                                    <Link className='file-link' to='/edit' state={{open: draft}}>{draft}</Link>
-                                </Col>
-                            </Row>
-                        )
-                    })
                 }
             </Container>
         </div>

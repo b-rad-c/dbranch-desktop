@@ -85,18 +85,19 @@ export function ArticleEditorToolbar(props) {
 
 
 export function ArticleEditorHeader(props) {
-
+    
     const document = props.document
+    const metadata = document.article.metadata
     const disabled = props.action.readOnly
 
     const [collapsed, setCollapsed] = useState(false)
     const toggleCollapsed = () => setCollapsed(!collapsed)
 
     const nameHandler = (e) => document.setDocumentName(e.target.value)
-    const typeHandler = (e) => document.updateArticle('type', e.target.value)
-    const titleHandler = (e) => document.updateArticle('title', e.target.value)
-    const subTitleHandler = (e) => document.updateArticle('subTitle', e.target.value)
-    const authorHandler = (e) => document.updateArticle('author', e.target.value)
+    const typeHandler = (e) => document.updateArticleMetadata('type', e.target.value)
+    const titleHandler = (e) => document.updateArticleMetadata('title', e.target.value)
+    const subTitleHandler = (e) => document.updateArticleMetadata('sub_title', e.target.value)
+    const authorHandler = (e) => document.updateArticleMetadata('author', e.target.value)
 
     const rowClass = 'mb-3 text-end'
 
@@ -124,7 +125,7 @@ export function ArticleEditorHeader(props) {
                     <Col sm={1} />
                     <Form.Label column sm={2}>type ::</Form.Label>
                     <Col>
-                        <Form.Select value={document.article.type} onChange={typeHandler}>
+                        <Form.Select value={metadata.type} onChange={typeHandler}>
                             <option value='news'>news</option>
                             <option value='opinion'>opinion</option>
                             <option value='review'>review</option>
@@ -141,7 +142,7 @@ export function ArticleEditorHeader(props) {
                     <Col sm={1} />
                     <Form.Label column sm={2}>title ::</Form.Label>
                     <Col>
-                        <FormControl disabled={disabled} type='string' placeholder='Enter title...' value={document.article.title} onChange={titleHandler} />
+                        <FormControl disabled={disabled} type='string' placeholder='Enter title...' value={metadata.title} onChange={titleHandler} />
                     </Col>
                 </Form.Group>
 
@@ -149,7 +150,7 @@ export function ArticleEditorHeader(props) {
                     <Col sm={1} />
                     <Form.Label column sm={2}>subtitle ::</Form.Label>
                     <Col>
-                        <FormControl disabled={disabled} as='textarea' placeholder='Enter subtitle...' style={{height: '65px'}} value={document.article.subTitle} onChange={subTitleHandler}/>
+                        <FormControl disabled={disabled} as='textarea' placeholder='Enter subtitle...' style={{height: '65px'}} value={metadata.sub_title} onChange={subTitleHandler}/>
                     </Col>
                 </Form.Group>
                 
@@ -157,7 +158,7 @@ export function ArticleEditorHeader(props) {
                     <Col sm={1} />
                     <Form.Label column sm={2}>author ::</Form.Label>
                     <Col>
-                        <FormControl disabled={disabled} type='string' placeholder='Enter title...' value={document.article.author} onChange={authorHandler} />
+                        <FormControl disabled={disabled} type='string' placeholder='Enter title...' value={metadata.author} onChange={authorHandler} />
                     </Col>
                 </Form.Group>
             </span>
