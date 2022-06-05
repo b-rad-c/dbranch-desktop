@@ -31,12 +31,14 @@ export default function EditPage(props) {
 
     // article / document state & updaters
     const defaultArticle = newBlankArticle()
+    const [ documentModifed, setDocumentModifed] = useState(false)
     const [ documentName, setDocumentName] = useState(defaultArticle.record.name)
     const [ article, setArticle ] = useState(defaultArticle) 
     const updateArticleMetadata = (prop, value) => {
         setArticle(prevDoc => {
         const updates = {metadata: {...prevDoc.metadata}}
         updates.metadata[prop] = value
+        setDocumentModifed(true)
         return {...prevDoc, ...updates}
         })
     }
@@ -64,7 +66,7 @@ export default function EditPage(props) {
     const readOnly = runningAction !== null
 
     // helpers for child components
-    const document = { article, setArticle, closeEditor, updateArticleMetadata, documentName, setDocumentName, makeArticle }
+    const document = { article, setArticle, closeEditor, updateArticleMetadata, documentName, setDocumentName, makeArticle, documentModifed, setDocumentModifed }
     const action = { runningAction, setRunningAction, actionIsRunning, actionWasSuccessful, actionNormal, readOnly }
     
     //
@@ -116,7 +118,8 @@ export default function EditPage(props) {
             window.dBranch.writeUserDocument(documentName, articleFileString())
                 .then(() => {
                     console.log('user document saved')
-                    setActionSuccessful('save'); 
+                    setActionSuccessful('save')
+                    setDocumentModifed(false)
                     setTimeout(() => setActionSuccessful(null), 3000)
                 })
                 .catch((error) => { console.error(error); setErrorMsg(error.toString())})   

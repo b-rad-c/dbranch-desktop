@@ -16,14 +16,14 @@ export default function BrowsePage(props) {
     const [loadSuccess, setLoadSuccess ] = useState(false)
 
     const [articleIndex, setArticleIndex] = useState(null)
-    const [articleName, setArticleName] = useState(null)    // article to load
-    const [article, setArticle] = useState(null)            // loaded article
+    const [articleRecordToLoad, setArticleRecordToLoad] = useState(null)    // article to load
+    const [article, setArticle] = useState(null)                    // loaded article
     const [explorerURL, setExplorerURL] = useState('')
     const showArticleIndex = articleIndex !== null && article === null
 
     const loadArticleIndex = () => setLoading(true)
-    const loadToArticle = (record) => setArticleName(record.name)
-    const closeArticle = () => { setArticleName(null); setArticle(null) }
+    const loadArticle = (record) => setArticleRecordToLoad(record)
+    const closeArticle = () => { setArticleRecordToLoad(null); setArticle(null) }
 
     useEffect(() => { 
         if (loading) {
@@ -53,12 +53,13 @@ export default function BrowsePage(props) {
     }, [loading]);
 
     useEffect(() => {
-        if (articleName !== null) {
-            console.log('loading article: ' + articleName)
+        if (articleRecordToLoad !== null) {
+            console.log('loading article: ' + articleRecordToLoad)
             const api = new dBranchAPI(networkHost)
-            api.getArticle(articleName)
+            api.getArticleByCid(articleRecordToLoad.cid)
                 .then((article) => {
                     console.log('loaded article', article)
+                    article.record = articleRecordToLoad
                     setArticle(article)
                     setExplorerURL(CardanoExplorerLink(article.record.cardano_tx_hash))
                 }).catch((error) => {
@@ -70,7 +71,7 @@ export default function BrowsePage(props) {
                 })
         }
     // eslint-disable-next-line
-    }, [articleName])
+    }, [articleRecordToLoad])
 
 return (
 <main>
@@ -105,7 +106,7 @@ return (
             <ArticleIndex 
                 gap={2} 
                 theme='bubble' 
-                onItemClick={loadToArticle} 
+                onItemClick={loadArticle} 
                 index={articleIndex}
                 />
         }

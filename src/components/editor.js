@@ -46,6 +46,7 @@ export default function ArticleEditor(props) {
 export function ArticleEditorToolbar(props) {
 
     const action = props.action
+    const modified = props.document.documentModifed
 
     const save = () => action.setRunningAction('save')
     const publish = () => action.setRunningAction('publish')
@@ -62,7 +63,7 @@ export function ArticleEditorToolbar(props) {
             <Button variant={variant} disabled={action.readOnly} onClick={save}>
                 { action.actionIsRunning('save')        && Spin}
                 { action.actionWasSuccessful('save')    && <Check2Circle />}
-                { action.actionNormal('save')           && <span>Save</span>}
+                { action.actionNormal('save')           && <span>Save{modified && <span>*</span>}</span>}
             </Button>
 
             {/* preview button */}
@@ -93,7 +94,7 @@ export function ArticleEditorHeader(props) {
     const [collapsed, setCollapsed] = useState(false)
     const toggleCollapsed = () => setCollapsed(!collapsed)
 
-    const nameHandler = (e) => document.setDocumentName(e.target.value)
+    const nameHandler = (e) => { document.setDocumentName(e.target.value); document.setDocumentModified(true) }
     const typeHandler = (e) => document.updateArticleMetadata('type', e.target.value)
     const titleHandler = (e) => document.updateArticleMetadata('title', e.target.value)
     const subTitleHandler = (e) => document.updateArticleMetadata('sub_title', e.target.value)
@@ -173,8 +174,8 @@ export function ArticleEditorHeader(props) {
 //
 
 export function ArticleEditorBody(props) {
-    const action = props.action
     const [quillValue, setQuillValue] = useState(props.document.article.contents)
+
 
     return (
         <div className='mt-2'>
@@ -185,7 +186,7 @@ export function ArticleEditorBody(props) {
                 <ReactQuill 
                     ref=           {props.editorRef} 
                     bounds=        'article-editor-container'
-                    readOnly=      {action.readOnly} 
+                    readOnly=      {props.action.readOnly} 
                     theme=         'snow' 
                     value=         {quillValue} 
                     onChange=      {setQuillValue} 
