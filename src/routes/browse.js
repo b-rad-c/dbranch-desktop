@@ -58,7 +58,7 @@ export default function BrowsePage(props) {
             const api = new dBranchAPI(networkHost)
             api.getArticleByCid(articleRecordToLoad.cid)
                 .then((article) => {
-                    console.log('loaded article', article)
+                    console.log('loaded article')
                     article.record = articleRecordToLoad
                     setArticle(article)
                     setExplorerURL(CardanoExplorerLink(article.record.cardano_tx_hash))
