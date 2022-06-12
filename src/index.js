@@ -1,9 +1,10 @@
 import 'react-quill/dist/quill.snow.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.scss'
-import MainPage from './routes/main';
+
+import BrowsePage from './routes/browse';
 import EditPage from './routes/edit';
-import FilesPage from './routes/files';
+import MainPage from './routes/main';
 import SettingsPage from './routes/settings';
 
 import { useEffect, useState } from 'react';
@@ -11,7 +12,7 @@ import { render } from 'react-dom';
 import { Stack } from 'react-bootstrap'
 import { Routes, Route, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { HashRouter, NavLink } from 'react-router-dom';
-import { PencilSquare, HouseDoor, Gear, Folder } from 'react-bootstrap-icons'
+import { PencilSquare, HouseDoor, Gear, Newspaper } from 'react-bootstrap-icons'
 
 function App() {
   let navigate = useNavigate();
@@ -27,7 +28,7 @@ function App() {
 
   const paths = [
     ['/', 'Home', (<HouseDoor size={iconSize} />)],
-    ['/files', 'Files', (<Folder size={iconSize} />)],
+    ['/browse', 'Browse', (<Newspaper size={iconSize} />)],
     ['/edit', 'Editor', (<PencilSquare size={iconSize} />)],
     ['/settings', 'Settings', (<Gear size={iconSize} />)],
   ]
@@ -66,8 +67,10 @@ function App() {
 
 const defaultSettings = {
   ipfsHost: 'http://127.0.0.1:5001',
+  defaultNetworkHost: 'http://localhost:1323',
   draftFolder: '/Users/folder',
   dBranchPublishedDir: '/dBranch/published',
+  dBranchCuratedDir: '/dBranch/curated',
   wireChannel: 'dbranch-wire'
 }
 
@@ -89,8 +92,8 @@ function Root() {
     <Routes>
       <Route path='/' element={<App />}>
         <Route index element={<MainPage />} />
+        <Route path='browse' element={<BrowsePage settings={settings} />} />
         <Route path='edit' element={<EditPage settings={settings} />} />
-        <Route path='files' element={<FilesPage settings={settings} />} />
         <Route path='settings' element={<SettingsPage settings={settings} updateSetting={updateSetting} resetSettings={resetSettings} />} />
         <Route
           path='*'

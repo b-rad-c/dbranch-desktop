@@ -1,10 +1,10 @@
 import ArticleEditor from '../components/editor'
 import { useState, useRef, useEffect } from 'react'
 import { Button, Alert, Spinner } from 'react-bootstrap'
-import { useLocation } from 'react-router-dom'
-import Delta from 'quill-delta'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { create } from 'ipfs-http-client'
-import { Article } from 'dbranch-core'
+import DocumentListings from '../components/documents'
+import { newBlankArticle } from 'dbranch-core'
 
 
 export default function EditPage(props) {
@@ -13,53 +13,68 @@ export default function EditPage(props) {
     // state and handlers
     //
 
-    // state variables
+    const location = useLocation()
+    let navigate = useNavigate()
+    const editorRef = useRef(null)
     const [ loading, setLoading ] = useState(true)
+
+    // editor state & actions
     const [ showEditor, setShowEditor ] = useState(false)
-    const [ runningAction, setRunningAction ] = useState(null)
-    const [ actionSuccessful, setActionSuccessful ] = useState(null)
-    const [ errorMsg, setErrorMsg ] = useState('')
-    const [ documentName, setDocumentName] = useState('Untitled article.news')
+    const openEditor = () => setShowEditor(true)
+    const closeEditor = () => {
+        setShowEditor(false)
+        navigate('/edit')
+        const defaultArticle = newBlankArticle()
+        setArticle(defaultArticle)
+        setDocumentName(defaultArticle.record.name)
+    }
 
-    const defaultDoc = new Article() // instantiate to get default values
-    const [ doc, setDoc ] = useState({...defaultDoc}) 
-
-    // updaters
-    const toggleEditor = () => setShowEditor(!showEditor)
-
-    const updateDoc = (prop, value) => {
-        setDoc(prevDoc => {
-        const updates = {}
-        updates[prop] = value
+    // article / document state & updaters
+    const defaultArticle = newBlankArticle()
+    const [ documentModifed, setDocumentModifed] = useState(false)
+    const [ documentName, setDocumentName] = useState(defaultArticle.record.name)
+    const [ article, setArticle ] = useState(defaultArticle) 
+    const updateArticleMetadata = (prop, value) => {
+        setArticle(prevDoc => {
+        const updates = {metadata: {...prevDoc.metadata}}
+        updates.metadata[prop] = value
+        setDocumentModifed(true)
         return {...prevDoc, ...updates}
         })
     }
 
-    // dynamic values + misc
-    const actionIsRunning = (name) => runningAction === name && actionSuccessful !== true
-    const actionWasSuccessful = (name) => actionSuccessful === name
-    const actionNormal = (name) => !actionIsRunning(name) && !actionWasSuccessful(name)
-    const readOnly = runningAction !== null
-    const toggleButtonLabel = showEditor ? 'Back' : 'New Article'
-
-    const location = useLocation()
-    const editorRef = useRef(null)
-
     const makeArticle = () => {
-        const newArticle = Object.assign(new Article(), doc)
+        const newArticle = Object.assign(newBlankArticle(), article)
         newArticle.contents = editorRef.current.getEditor().getContents()
         return newArticle
     }
 
+    const articleFileString = () => {
+        let article = makeArticle()
+        delete article.record
+        return JSON.stringify(article)
+    }
+
+    // save + publish actions
+    const [ runningAction, setRunningAction ] = useState(null)
+    const [ actionSuccessful, setActionSuccessful ] = useState(null)
+    const [ errorMsg, setErrorMsg ] = useState('')
+
+    const actionIsRunning = (name) => runningAction === name && actionSuccessful !== true
+    const actionWasSuccessful = (name) => actionSuccessful === name
+    const actionNormal = (name) => !actionIsRunning(name) && !actionWasSuccessful(name)
+    const readOnly = runningAction !== null
+
     // helpers for child components
-    const article = { doc, setDoc, updateDoc, documentName, setDocumentName, makeArticle }
+    const document = { article, setArticle, closeEditor, updateArticleMetadata, documentName, setDocumentName, makeArticle, documentModifed, setDocumentModifed }
     const action = { runningAction, setRunningAction, actionIsRunning, actionWasSuccessful, actionNormal, readOnly }
     
     //
-    // (optionally) load document on first render
+    // (optionally) load document on first render 
+    //  - when an article is clicked from the document listings it actually navigates to this URL with the article name as a state and triggers a load
     //
 
-    // pass state.open='file.ext' when navigating to this page
+    // pass state.open='file.ext' when navigating to this page to open editor with specified file
     useEffect(() => {
         let openingDoc = false
         let docName = null
@@ -72,17 +87,10 @@ export default function EditPage(props) {
             console.log('opening: ' + docName)
             window.dBranch.readUserDocument(docName)
                 .then((fileData) => {
-                    console.log(fileData)
-
-                    const loadedDoc = Article.fromJSONString(fileData)
+                    let article = newBlankArticle()
+                    Object.assign(article, JSON.parse(fileData))
                     
-                    setDoc({
-                        type: loadedDoc.type,
-                        title: loadedDoc.title,
-                        subTitle: loadedDoc.subTitle,
-                        author: loadedDoc.author,
-                        contents: new Delta(loadedDoc.contents.ops)
-                    })
+                    setArticle(article)
                     
                     console.log('load finished')
                     setShowEditor(true)
@@ -104,41 +112,36 @@ export default function EditPage(props) {
     //
 
     useEffect(() => {
-        let timeout = null
         if(actionIsRunning('save')) {
-            const articleToSave = makeArticle()
             console.log('saving user document: ' + documentName)
 
-            window.dBranch.writeUserDocument(documentName, articleToSave.toJSONString())
+            window.dBranch.writeUserDocument(documentName, articleFileString())
                 .then(() => {
                     console.log('user document saved')
-                    setActionSuccessful('save'); 
-                    timeout = setTimeout(() => setActionSuccessful(null), 3000)
+                    setActionSuccessful('save')
+                    setDocumentModifed(false)
+                    setTimeout(() => setActionSuccessful(null), 3000)
                 })
                 .catch((error) => { console.error(error); setErrorMsg(error.toString())})   
                 .finally(() => setRunningAction(null))
         }
-        return () => clearTimeout(timeout)
-    })
+    // eslint-disable-next-line
+    }, [runningAction])
 
     //
     // publish document (add to ipfs)
     //
 
     useEffect(() => {
-        let timeout = null
         if(actionIsRunning('publish')) {
-            const articleToPublish = makeArticle()
-            const fileContents = articleToPublish.toJSONString()
             console.log('publishing to ipfs: ' + documentName)
-            console.log(fileContents)
 
             //
             // add to ipfs
             //
 
             const ipfsClient = create(props.settings.ipfsHost)
-            ipfsClient.add(fileContents, {progress: (size) => console.log('progress in bytes:' + size)})
+            ipfsClient.add(articleFileString(), {progress: (size) => console.log('progress in bytes:' + size)})
                 .then((result) => {
                     console.log(result)
                     const ipfsSrc = '/ipfs/' + result.cid
@@ -152,7 +155,7 @@ export default function EditPage(props) {
                     ipfsClient.files.cp(ipfsSrc, ipfsFilesDest, {parents: true, flush: true})
                         .then(() => {
                             setActionSuccessful('publish')
-                            timeout = setTimeout(() => setActionSuccessful(null), 3000)
+                            setTimeout(() => setActionSuccessful(null), 3000)
                         }).catch((error) => {
                             console.error(error) 
                             setErrorMsg(error.toString())
@@ -164,7 +167,6 @@ export default function EditPage(props) {
 
                 }).finally(() => setRunningAction(null))
         }
-        return () => clearTimeout(timeout)
     })
 
     return (
@@ -173,15 +175,21 @@ export default function EditPage(props) {
             <Alert.Heading>File error</Alert.Heading>
             <p className='alert-text'>{errorMsg}</p>
         </Alert>
-        <div className='content'>
-        
-            <div className='article-editor-toolbar'>
+
+        <div className='edit-page-container'>
+            <div>
                 {loading && <Spinner animation='border' role='status' />}
-                {!loading && <Button onClick={toggleEditor}>{toggleButtonLabel}</Button>}
+                {!showEditor && 
+                    <div>
+                        <Button style={{marginLeft: '2%'}} onClick={openEditor}>New Article</Button>
+                        <DocumentListings settings={props.settings} />
+                    </div>
+                }
             </div>
             
-            {showEditor && <ArticleEditor article={article} editorRef={editorRef} action={action} />}
+            {showEditor && <ArticleEditor document={document} editorRef={editorRef} action={action} />}
         </div>
+
     </main>
     );
 }

@@ -6,6 +6,14 @@ $dark: rgba(20, 20, 20, 1);
 
 $primaryFont: 'Courier New', Courier, monospace;
 
+$position-values: (
+  0: 0,
+  1: 1.5%,
+  2: 2%,
+  50: 50%,
+  100: 100%
+);
+
 @import "~bootstrap/scss/bootstrap";
 
 /*
@@ -20,6 +28,7 @@ body {
     -moz-osx-font-smoothing: grayscale;
     text-align: left;
     color: $dark;
+    // overflow-y: auto;
 }
 
 main {
@@ -135,6 +144,8 @@ $headerHeight: 42px;
     left: $navWidth;
 
     padding: 0;
+
+    overflow-y: auto;
 }
 
 /*
@@ -162,11 +173,13 @@ $headerHeight: 42px;
 .nav-link:hover {
     text-decoration: underline;
     color: $dark;
+    cursor: pointer;
 }
 
 .active, .active:hover {
     background-color: $light;
     text-decoration: none;
+    cursor: default;
 }
 
 /*
@@ -191,12 +204,21 @@ $headerHeight: 42px;
 article editor
 */
 
+.edit-page-container{
+    margin: 0 auto;
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+    padding-top: 0px;
+}
+
 .article-editor {
 
 }
 
 .article-editor-toolbar {
-    width: 66%;
+    margin-top: 0px;
+    margin-bottom: 1rem;
 }
 
 .article-editor-header {
@@ -204,7 +226,9 @@ article editor
 }
 
 .article-editor-container {
-    height: 450px;
+    height: 100%;
+    min-height: 100%;
+    overflow-y: auto;
 }
 
 .article-editor-container p, .article-editor-container ul, .article-editor-container ol {
@@ -213,7 +237,10 @@ article editor
 
 .ql-editor {
     font-family: $primaryFont;
-    padding: 0px;
+    height: auto;
+    min-height: 25rem;
+    
+    overflow-y: auto;
 }
 
 .ql-editor h3 {
@@ -226,6 +253,10 @@ article reader
 
 .article-reader-modal {
     max-width: 70%;
+}
+
+.article-reader-container {
+    
 }
 
 .article-reader-container p, .article-reader-container ul, .article-reader-container ol {
@@ -244,10 +275,11 @@ article reader
     font-size: 1.25rem;
     width: 85%;
     margin: 0 auto;
-    margin-bottom: 1.25rem;
 }
 
 .article-reader-by-line {
+    margin-top: .5rem;
+    padding-bottom: 1rem;
     border-bottom-style: solid;
     border-bottom-color: $primary;
     border-bottom-width: .1rem;
@@ -255,12 +287,43 @@ article reader
 
 .article-reader-body {
     font-family: $primaryFont;
-    position: relative;
-    top: -1rem;
+    
 }
 
 .article-reader-body h1, .article-reader-body h2, .article-reader-body h3 {
     margin-top: 1rem;
+}
+
+/*
+article index
+*/
+
+.article-index {
+    margin: 0 auto;
+    width: 80%;
+}
+
+.article-index-item {
+    color: $dark;
+    text-align: left;
+    cursor: pointer;
+}
+
+.article-index-item-title {
+    font-size: 1.5rem;
+    margin-bottom: .5rem;
+}
+
+.article-index-item-subtitle {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: .5rem;
+}
+
+.article-index-item-byline {
+    color: $dark;
+    font-size: 1.1rem;
+    font-style: italic;
 }
 
 /*

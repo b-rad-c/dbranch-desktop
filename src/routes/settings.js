@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { Button, Form, Row, Col, InputGroup, Alert } from 'react-bootstrap'
 import { create } from 'ipfs-http-client'
 import { Check2Circle } from 'react-bootstrap-icons'
+import { ipfsDownloadURL } from '../constants'
+import { ExternalURL } from '../utilities/misc'
 
 export default function SettingsPage(props) {
 
@@ -95,7 +97,7 @@ export default function SettingsPage(props) {
 
             <Alert variant='danger' show={ipfsErrorMsg} transition={false}>
                 <Alert.Heading>Error contacting IPFS</Alert.Heading>
-                <p className='alert-text'>{ipfsErrorMsg}</p>
+                <p className='alert-text'>{ipfsErrorMsg} - if you don't have IPFS installed, you can download it from <ExternalURL url={ipfsDownloadURL}>this link</ExternalURL>.</p>
             </Alert>
 
             {
