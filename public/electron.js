@@ -1,6 +1,7 @@
-const { app, BrowserWindow, Menu, ipcMain } = require('electron')
+const { app, BrowserWindow, Menu, ipcMain, clipboard, shell } = require('electron')
 const path = require('path');
 const fs = require('fs')
+const URL = require('url').URL
 
 //
 // config
@@ -18,7 +19,8 @@ function createWindow() {
     height: height,
     titleBarStyle: 'hiddenInset',
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      sandbox: true
     }
   });
   mainWindow.menuBarVisible = false;
@@ -56,10 +58,37 @@ function readUserDocument(fileName) {
 // initialize app
 //
 
+function sourceIsValid(urlString) {
+  const url = new URL(urlString)
+  return isDev || (url.origin !== 'null' || url.protocol !== 'file:')
+}
+
+app.on('web-contents-created', (_, contents) => {
+  contents.on('will-navigate', (e, navigationUrl) => {
+    if(!sourceIsValid(navigationUrl)) e.preventDefault() 
+  })
+
+  contents.setWindowOpenHandler(() => {
+    return { action: 'deny' }
+  })
+})
+
 app.whenReady().then(() => {
-  ipcMain.handle('write-user-document', (_, fileName, fileContents) => writeUserDocument(fileName, fileContents) )
-  ipcMain.handle('list-user-documents', () => listUserDocuments())
-  ipcMain.handle('read-user-document', (_, name) => readUserDocument(name))
+  ipcMain.handle('write-user-document', (e, fileName, fileContents) => {
+    if(sourceIsValid(e.senderFrame.url)) writeUserDocument(fileName, fileContents)
+  })
+  ipcMain.handle('list-user-documents', (e) => { 
+    if(sourceIsValid(e.senderFrame.url)) return listUserDocuments()
+  })
+  ipcMain.handle('read-user-document', (e, name) => {
+    if(sourceIsValid(e.senderFrame.url)) return readUserDocument(name)
+  })
+  ipcMain.handle('copy-text', (e, text) => {
+    if(sourceIsValid(e.senderFrame.url)) clipboard.writeText(text)
+  })
+  ipcMain.handle('open-in-browser', (e, url) => {
+    if(sourceIsValid(e.senderFrame.url)) shell.openExternal(url)
+  })
   createWindow()
   app.on('activate', () => {
       // osx behaviour, when activating app, open a window if none are open

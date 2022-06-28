@@ -94,7 +94,7 @@ export function ArticleEditorHeader(props) {
     const [collapsed, setCollapsed] = useState(false)
     const toggleCollapsed = () => setCollapsed(!collapsed)
 
-    const nameHandler = (e) => { document.setDocumentName(e.target.value); document.setDocumentModified(true) }
+    const nameHandler = (e) => { document.setDocumentName(e.target.value); document.setDocumentModifed(true) }
     const typeHandler = (e) => document.updateArticleMetadata('type', e.target.value)
     const titleHandler = (e) => document.updateArticleMetadata('title', e.target.value)
     const subTitleHandler = (e) => document.updateArticleMetadata('sub_title', e.target.value)
@@ -103,7 +103,7 @@ export function ArticleEditorHeader(props) {
     const rowClass = 'mb-3 text-end'
 
     return (
-    <Form className='article-editor-header' style={{width: '70%'}}>
+    <Form className='article-editor-header'>
         <Form.Group as={Row} className={rowClass}>
             <Col sm={1}>
                 <Button variant='outline-dark' onClick={toggleCollapsed}>
@@ -151,7 +151,7 @@ export function ArticleEditorHeader(props) {
                     <Col sm={1} />
                     <Form.Label column sm={2}>subtitle ::</Form.Label>
                     <Col>
-                        <FormControl disabled={disabled} as='textarea' placeholder='Enter subtitle...' style={{height: '65px'}} value={metadata.sub_title} onChange={subTitleHandler}/>
+                        <FormControl disabled={disabled} as='textarea' placeholder='Enter subtitle...' value={metadata.sub_title} onChange={subTitleHandler}/>
                     </Col>
                 </Form.Group>
                 

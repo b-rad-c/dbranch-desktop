@@ -145,7 +145,7 @@ export default function EditPage(props) {
                 .then((result) => {
                     console.log(result)
                     const ipfsSrc = '/ipfs/' + result.cid
-                    const ipfsFilesDest = window.dBranch.joinPath(props.settings.dBranchPublishedDir, documentName)
+                    const ipfsFilesDest = props.settings.dBranchPublishedDir + '/' + documentName
                     console.log('copying: ' + ipfsSrc + ' to: ' + ipfsFilesDest)
 
                     //
@@ -181,7 +181,7 @@ export default function EditPage(props) {
                 {loading && <Spinner animation='border' role='status' />}
                 {!showEditor && 
                     <div>
-                        <Button style={{marginLeft: '2%'}} onClick={openEditor}>New Article</Button>
+                        <Button onClick={openEditor}>New Article</Button>
                         <DocumentListings settings={props.settings} />
                     </div>
                 }

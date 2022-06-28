@@ -30,7 +30,7 @@ export default function DocumentListings(props) {
     const [showArticlePreview, setShowArticlePreview] = useState(false)
     const [cardanoExplorerUrl, setCardanoExplorerUrl] = useState('')
 
-    const getPublishedPath = (filename) => window.dBranch.joinPath(props.settings.dBranchPublishedDir, filename)
+    const getPublishedPath = (filename) => props.settings.dBranchPublishedDir + '/' + filename
 
 
     //

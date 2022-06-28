@@ -98,7 +98,7 @@ function Root() {
         <Route
           path='*'
           element={
-            <main style={{ padding: '1rem' }}>
+            <main>
               <p className='text-danger font-weight-bold'>Error: invalid route</p>
             </main>
           }
